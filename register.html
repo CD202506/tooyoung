@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>失智症隨身記 - 註冊</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #e5ecf5;
+    }
+    .auth-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .auth-container h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .auth-container label {
+      display: block;
+      margin-top: 1rem;
+    }
+    .auth-container input, .auth-container select {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-top: 0.25rem;
+    }
+    .auth-container button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      background: #4a6fa5;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .auth-container button:hover {
+      background: #3a5d8a;
+    }
+    .auth-container p {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .auth-container p a {
+      color: #4a6fa5;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h1>註冊帳號</h1>
+    <label for="name">姓名：</label>
+    <input type="text" id="name" placeholder="請輸入您的姓名" />
+
+    <label for="role">角色：</label>
+    <select id="role">
+      <option value="family">家屬</option>
+      <option value="doctor">醫生</option>
+      <option value="consultant">諮詢師</option>
+      <option value="caregiver">照顧者</option>
+    </select>
+
+    <label for="email">電子郵件：</label>
+    <input type="email" id="email" placeholder="example@example.com" />
+
+    <label for="password">密碼：</label>
+    <input type="password" id="password" placeholder="請輸入密碼" />
+
+    <button onclick="alert('模擬註冊完成')">註冊</button>
+
+    <p>已經有帳號？<a href="login.html">登入</a></p>
+  </div>
+</body>
+</html>

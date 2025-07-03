@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>失智症隨身記 - 症狀記錄</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <div class="logo"><a href="index.html">失智症隨身記</a></div>
+    <nav>
+      <ul class="nav-list">
+        <li><a href="tracker.html" class="active">症狀記錄</a></li>
+        <li><a href="knowledge.html">照護知識</a></li>
+        <li><a href="settings.html">個人化設定</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="tracker">
+    <h1>症狀記錄</h1>
+    <section class="input-section">
+      <label for="date">日期：</label>
+      <input type="date" id="date" name="date" />
+
+      <label for="symptom">症狀描述：</label>
+      <textarea id="symptom" rows="4" placeholder="描述當日的症狀狀況..."></textarea>
+
+      <button class="cta-btn" onclick="saveRecord()">儲存紀錄</button>
+    </section>
+
+    <section class="history-section">
+      <h2>歷史紀錄</h2>
+      <ul class="history-list" id="history-list">
+        <li><strong>2025/07/02：</strong>輕微忘記事情，心情平穩。</li>
+        <li><strong>2025/07/01：</strong>重複提問次數增多。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 失智症隨身記 | 聯絡我們 | 隱私政策</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

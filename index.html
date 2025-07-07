@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>失智症隨身記 - 首頁</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .auth-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      margin: 2rem auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .auth-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .auth-container label {
+      display: block;
+      margin-top: 1rem;
+    }
+    .auth-container input, .auth-container select {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-top: 0.25rem;
+    }
+    .auth-container button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      background: #4a6fa5;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .auth-container button:hover {
+      background: #3a5d8a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">失智症隨身記</div>
+    <nav>
+      <ul class="nav-list" id="navbar">
+        <!-- JS 動態渲染導覽列 -->
+      </ul>
+    </nav>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <h1>關懷您的每一天</h1>
+      <p>以病患為核心，協助家屬與醫護共同紀錄。</p>
+    </section>
+
+    <div class="auth-container" id="auth-section" style="display:none;">
+      <h2>登入</h2>
+      <label for="login-email">電子郵件：</label>
+      <input type="email" id="login-email" placeholder="example@example.com" />
+
+      <label for="login-password">密碼：</label>
+      <input type="password" id="login-password" placeholder="請輸入密碼" />
+
+      <button onclick="login()">登入</button>
+
+      <h2>或註冊</h2>
+      <label for="register-name">姓名：</label>
+      <input type="text" id="register-name" placeholder="請輸入您的姓名" />
+
+      <label for="register-role">角色（可多選）：</label>
+      <select id="register-role" multiple>
+        <option value="family">家屬</option>
+        <option value="doctor">醫生</option>
+        <option value="consultant">諮詢師</option>
+        <option value="caregiver">照顧者</option>
+      </select>
+
+      <label for="register-email">電子郵件：</label>
+      <input type="email" id="register-email" placeholder="example@example.com" />
+
+      <label for="register-password">密碼：</label>
+      <input type="password" id="register-password" placeholder="請輸入密碼" />
+
+      <button onclick="register()">註冊</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 失智症隨身記 | 聯絡我們 | 隱私政策</p>
+  </footer>
+
+  <script>
+    let isLoggedIn = false;
+
+    function renderNavbar() {
+      const navbar = document.getElementById("navbar");
+      if (isLoggedIn) {
+        navbar.innerHTML = `
+          <li><a href="knowledge.html">照護知識</a></li>
+          <li><a href="patients.html">病患清單</a></li>
+          <li><a href="settings.html">個人化設定</a></li>
+          <li><a href="#" onclick="logout()">登出</a></li>
+        `;
+      } else {
+        navbar.innerHTML = `
+          <li><a href="knowledge.html">照護知識</a></li>
+          <li><a href="#" onclick="toggleAuth()">登入/註冊</a></li>
+        `;
+      }
+    }
+
+    function toggleAuth() {
+      const authSection = document.getElementById("auth-section");
+      authSection.style.display = authSection.style.display === "none" ? "block" : "none";
+    }
+
+    function login() {
+      alert("模擬登入成功！");
+      isLoggedIn = true;
+      renderNavbar();
+      document.getElementById("auth-section").style.display = "none";
+    }
+
+    function register() {
+      alert("模擬註冊完成！");
+      isLoggedIn = true;
+      renderNavbar();
+      document.getElementById("auth-section").style.display = "none";
+    }
+
+    function logout() {
+      alert("已登出！");
+      isLoggedIn = false;
+      renderNavbar();
+    }
+
+    function applySettings() {
+      const fontSize = localStorage.getItem('fontSize') || 'medium';
+      const theme = localStorage.getItem('theme') || 'light';
+
+      document.body.style.fontSize = fontSize === 'small' ? '14px' :
+                                     fontSize === 'large' ? '18px' : '16px';
+
+      if (theme === 'dark') {
+        document.body.style.backgroundColor = "#333";
+        document.body.style.color = "#eee";
+      } else {
+        document.body.style.backgroundColor = "#f9f9f9";
+        document.body.style.color = "#333";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderNavbar();
+      applySettings();
+    });
+  </script>
+</body>
+</html>

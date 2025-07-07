@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>失智症隨身記 - 照護知識</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <div class="logo"><a href="index.html">失智症隨身記</a></div>
+    <nav>
+      <ul class="nav-list" id="navbar">
+        <!-- JS 動態渲染 -->
+      </ul>
+    </nav>
+  </header>
+
+  <main class="knowledge">
+    <h1>照護知識</h1>
+
+    <div class="filter-bar">
+      <label for="category">篩選分類：</label>
+      <select id="category" onchange="filterArticles()">
+        <option value="all">全部</option>
+        <option value="early">早期徵兆</option>
+        <option value="care">日常照護</option>
+        <option value="mind">心理調適</option>
+      </select>
+    </div>
+
+    <section class="articles-grid">
+      <article class="article-card" data-category="early">
+        <img src="https://via.placeholder.com/300x150" alt="文章封面" />
+        <h3>認識失智症的早期徵兆</h3>
+        <p>從日常行為觀察，如何早期察覺失智跡象。</p>
+      </article>
+      <article class="article-card" data-category="care">
+        <img src="https://via.placeholder.com/300x150" alt="文章封面" />
+        <h3>失智患者的安全居家佈置</h3>
+        <p>提供實用方法打造安全友善的生活空間。</p>
+      </article>
+      <article class="article-card" data-category="mind">
+        <img src="https://via.placeholder.com/300x150" alt="文章封面" />
+        <h3>如何與患者溝通</h3>
+        <p>有效減少衝突、增進理解的溝通技巧。</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 失智症隨身記 | 聯絡我們 | 隱私政策</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    let isLoggedIn = false; // 測試用：正式環境應由後端控制
+
+    function renderNavbar() {
+      const navbar = document.getElementById("navbar");
+      if (isLoggedIn) {
+        navbar.innerHTML = `
+          <li><a href="knowledge.html" class="active">照護知識</a></li>
+          <li><a href="patients.html">病患清單</a></li>
+          <li><a href="settings.html">個人化設定</a></li>
+          <li><a href="#" onclick="logout()">登出</a></li>
+        `;
+      } else {
+        navbar.innerHTML = `
+          <li><a href="knowledge.html" class="active">照護知識</a></li>
+          <li><a href="index.html">登入/註冊</a></li>
+        `;
+      }
+    }
+
+    function logout() {
+      alert("已登出！");
+      isLoggedIn = false;
+      window.location.href = "index.html";
+    }
+
+    function applySettings() {
+      const fontSize = localStorage.getItem('fontSize') || 'medium';
+      const theme = localStorage.getItem('theme') || 'light';
+
+      document.body.style.fontSize = fontSize === 'small' ? '14px' :
+                                     fontSize === 'large' ? '18px' : '16px';
+
+      if (theme === 'dark') {
+        document.body.style.backgroundColor = "#333";
+        document.body.style.color = "#eee";
+      } else {
+        document.body.style.backgroundColor = "#f9f9f9";
+        document.body.style.color = "#333";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderNavbar();
+      applySettings();
+    });
+  </script>
+</body>
+</html>

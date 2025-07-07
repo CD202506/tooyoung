@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+<<<<<<< HEAD
   <meta charset="UTF-8" />
+=======
+  <meta charset="UTF-8">
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>失智症隨身記 - 首頁</title>
   <link rel="stylesheet" href="style.css"/>
@@ -50,7 +54,11 @@
     <div class="logo">失智症隨身記</div>
     <nav>
       <ul class="nav-list" id="navbar">
+<<<<<<< HEAD
         <!-- JS 動態渲染導覽列 -->
+=======
+        <!-- JS 會渲染這裡 -->
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
       </ul>
     </nav>
   </header>
@@ -75,7 +83,11 @@
       <label for="register-name">姓名：</label>
       <input type="text" id="register-name" placeholder="請輸入您的姓名" />
 
+<<<<<<< HEAD
       <label for="register-role">角色（可多選）：</label>
+=======
+      <label for="register-role">角色：</label>
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
       <select id="register-role" multiple>
         <option value="family">家屬</option>
         <option value="doctor">醫生</option>
@@ -109,6 +121,10 @@
           <li><a href="settings.html">個人化設定</a></li>
           <li><a href="#" onclick="logout()">登出</a></li>
         `;
+<<<<<<< HEAD
+=======
+        document.getElementById("auth-section").style.display = "none";
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
       } else {
         navbar.innerHTML = `
           <li><a href="knowledge.html">照護知識</a></li>
@@ -126,14 +142,20 @@
       alert("模擬登入成功！");
       isLoggedIn = true;
       renderNavbar();
+<<<<<<< HEAD
       document.getElementById("auth-section").style.display = "none";
+=======
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
     }
 
     function register() {
       alert("模擬註冊完成！");
       isLoggedIn = true;
       renderNavbar();
+<<<<<<< HEAD
       document.getElementById("auth-section").style.display = "none";
+=======
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
     }
 
     function logout() {
@@ -142,6 +164,7 @@
       renderNavbar();
     }
 
+<<<<<<< HEAD
     function applySettings() {
       const fontSize = localStorage.getItem('fontSize') || 'medium';
       const theme = localStorage.getItem('theme') || 'light';
@@ -162,6 +185,9 @@
       renderNavbar();
       applySettings();
     });
+=======
+    renderNavbar();
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
   </script>
 </body>
 </html>

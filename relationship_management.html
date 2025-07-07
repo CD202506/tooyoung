@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -77,3 +78,84 @@
   <script src="script.js"></script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>失智症隨身記 - 病患關係管理</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <div class="logo"><a href="index.html">失智症隨身記</a></div>
+    <nav>
+      <ul class="nav-list">
+        <li><a href="patients.html">病患清單</a></li>
+        <li><a href="relationship_management.html" class="active">病患關係管理</a></li>
+        <li><a href="knowledge.html">照護知識</a></li>
+        <li><a href="settings.html">個人化設定</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="relationship-management">
+    <h1>病患關係管理 - 林阿嬤</h1>
+
+    <section class="authorized-users">
+      <h2>已授權的使用者</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>使用者姓名</th>
+            <th>角色</th>
+            <th>聯絡方式</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>王小美</td>
+            <td>家屬</td>
+            <td>0912345678</td>
+            <td><button class="cta-btn secondary">取消授權</button></td>
+          </tr>
+          <tr>
+            <td>陳醫師</td>
+            <td>醫生</td>
+            <td>doctor@example.com</td>
+            <td><button class="cta-btn secondary">取消授權</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="add-user">
+      <h2>新增授權使用者</h2>
+      <label for="new-user-name">姓名：</label>
+      <input type="text" id="new-user-name" placeholder="輸入姓名" />
+
+      <label for="new-user-role">角色：</label>
+      <select id="new-user-role">
+        <option value="family">家屬</option>
+        <option value="doctor">醫生</option>
+        <option value="consultant">諮詢師</option>
+        <option value="caregiver">照顧者</option>
+      </select>
+
+      <label for="new-user-contact">聯絡方式：</label>
+      <input type="text" id="new-user-contact" placeholder="電話或Email" />
+
+      <button class="cta-btn" onclick="addAuthorizedUser()">新增授權</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 失智症隨身記 | 聯絡我們 | 隱私政策</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+>>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb

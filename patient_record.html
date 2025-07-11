@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -34,6 +33,7 @@
         <option value="doctor">醫生</option>
         <option value="consultant">諮詢師</option>
         <option value="caregiver">照顧者</option>
+        <option value="assessment">評估結果</option>
       </select>
     </section>
 
@@ -54,8 +54,7 @@
     <section class="history-section">
       <h2>紀錄歷史</h2>
       <ul class="history-list" id="patient-history">
-        <li data-role="family"><strong>2025/07/02 家屬-王小美：</strong> 今日情緒較為穩定。</li>
-        <li data-role="doctor"><strong>2025/07/01 醫生-陳醫師：</strong> 持續服藥，觀察一週後回診。</li>
+        <!-- 動態填入 -->
       </ul>
     </section>
   </main>
@@ -64,9 +63,79 @@
     <p>© 2025 失智症隨身記 | 聯絡我們 | 隱私政策</p>
   </footer>
 
-  <script src="script.js"></script>
   <script>
-    let isLoggedIn = true; // 測試用：正式環境應由後端控制
+    let isLoggedIn = true;
+    const recordsKeyPrefix = "record-";
+    const assessmentsKeyPrefix = "assessment-";
+
+    const samplePatients = {
+      "1": { name: "林阿嬤", birth: "1938/05/20" },
+      "2": { name: "李大叔", birth: "1945/11/02" },
+      "3": { name: "王奶奶", birth: "1940/03/15" }
+    };
+
+    function getPatientId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("patientId") || "1";
+    }
+
+    function loadPatientInfo() {
+      const pid = getPatientId();
+      const data = samplePatients[pid] || { name: "未知病患", birth: "N/A" };
+      document.getElementById("patient-name").textContent = data.name;
+      document.getElementById("patient-birth").textContent = `生日：${data.birth}`;
+    }
+
+    function savePatientRecord() {
+      const user = document.getElementById("user-select");
+      const text = document.getElementById("record-text").value.trim();
+      if (!text) return alert("請輸入紀錄內容");
+
+      const role = user.options[user.selectedIndex].dataset.role;
+      const name = user.options[user.selectedIndex].text;
+      const date = new Date().toISOString().split("T")[0];
+      const record = { date, role, name, text };
+      const key = recordsKeyPrefix + getPatientId();
+      const list = JSON.parse(localStorage.getItem(key)) || [];
+      list.unshift(record);
+      localStorage.setItem(key, JSON.stringify(list));
+      document.getElementById("record-text").value = "";
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const pid = getPatientId();
+      const recordKey = recordsKeyPrefix + pid;
+      const assessKey = assessmentsKeyPrefix + pid;
+
+      const records = JSON.parse(localStorage.getItem(recordKey)) || [];
+      const assessments = JSON.parse(localStorage.getItem(assessKey)) || [];
+
+      const combined = [...records.map(r => ({
+        type: "record", role: r.role, content: `<strong>${r.date} ${r.name}：</strong> ${r.text}`
+      })), ...assessments.map(a => ({
+        type: "assessment", role: "assessment", content: `<strong>${a.date} AD8：</strong> ${a.score} 分 - ${a.summary}`
+      }))];
+
+      combined.sort((a, b) => (a.date || "").localeCompare(b.date || "")).reverse();
+
+      const historyList = document.getElementById("patient-history");
+      historyList.innerHTML = "";
+      combined.forEach(item => {
+        const li = document.createElement("li");
+        li.dataset.role = item.role;
+        li.innerHTML = item.content;
+        historyList.appendChild(li);
+      });
+    }
+
+    function filterRecordsByRole() {
+      const selected = document.getElementById("role-select").value;
+      const items = document.querySelectorAll("#patient-history li");
+      items.forEach(item => {
+        item.style.display = (selected === "all" || item.dataset.role === selected) ? "list-item" : "none";
+      });
+    }
 
     function renderNavbar() {
       const navbar = document.getElementById("navbar");
@@ -74,6 +143,7 @@
         navbar.innerHTML = `
           <li><a href="knowledge.html">照護知識</a></li>
           <li><a href="patients.html">病患清單</a></li>
+          <li><a href="assessment.html?patientId=${getPatientId()}">進行評估</a></li>
           <li><a href="settings.html">個人化設定</a></li>
           <li><a href="#" onclick="logout()">登出</a></li>
         `;
@@ -95,122 +165,18 @@
     function applySettings() {
       const fontSize = localStorage.getItem('fontSize') || 'medium';
       const theme = localStorage.getItem('theme') || 'light';
-
-      document.body.style.fontSize = fontSize === 'small' ? '14px' :
-                                     fontSize === 'large' ? '18px' : '16px';
-
-      if (theme === 'dark') {
-        document.body.style.backgroundColor = "#333";
-        document.body.style.color = "#eee";
-      } else {
-        document.body.style.backgroundColor = "#f9f9f9";
-        document.body.style.color = "#333";
-      }
+      document.body.style.fontSize = fontSize === 'small' ? '14px' : fontSize === 'large' ? '18px' : '16px';
+      document.body.style.backgroundColor = theme === 'dark' ? "#333" : "#f9f9f9";
+      document.body.style.color = theme === 'dark' ? "#eee" : "#333";
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      loadPatientInfo();
       renderNavbar();
+      renderHistory();
       applySettings();
     });
   </script>
 </body>
 </html>
-=======
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>失智症隨身記 - 病患紀錄</title>
-  <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-  <header>
-    <div class="logo"><a href="index.html">失智症隨身記</a></div>
-    <nav>
-      <ul class="nav-list" id="navbar">
-        <!-- 由 JS 動態渲染 -->
-      </ul>
-    </nav>
-  </header>
-
-  <main class="patient-record">
-    <section class="patient-info">
-      <img src="https://via.placeholder.com/150" alt="病患照片">
-      <div class="info">
-        <h2 id="patient-name">病患姓名</h2>
-        <p id="patient-birth">生日：</p>
-      </div>
-    </section>
-
-    <section class="role-filter">
-      <label for="role-select">篩選角色：</label>
-      <select id="role-select" onchange="filterRecordsByRole()">
-        <option value="all">全部</option>
-        <option value="family">家屬</option>
-        <option value="doctor">醫生</option>
-        <option value="consultant">諮詢師</option>
-        <option value="caregiver">照顧者</option>
-      </select>
-    </section>
-
-    <section class="input-section">
-      <label for="user-select">選擇您的身份：</label>
-      <select id="user-select">
-        <option value="1" data-role="family">家屬 - 王小美</option>
-        <option value="2" data-role="doctor">醫生 - 陳醫師</option>
-        <option value="3" data-role="consultant">諮詢師 - 吳心理師</option>
-      </select>
-
-      <label for="record-text">紀錄內容：</label>
-      <textarea id="record-text" rows="4" placeholder="輸入您對病患的觀察或建議..."></textarea>
-
-      <button class="cta-btn" onclick="savePatientRecord()">儲存紀錄</button>
-    </section>
-
-    <section class="history-section">
-      <h2>紀錄歷史</h2>
-      <ul class="history-list" id="patient-history">
-        <li data-role="family"><strong>2025/07/02 家屬-王小美：</strong> 今日情緒較為穩定。</li>
-        <li data-role="doctor"><strong>2025/07/01 醫生-陳醫師：</strong> 持續服藥，觀察一週後回診。</li>
-      </ul>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 失智症隨身記 | 聯絡我們 | 隱私政策</p>
-  </footer>
-
-  <script>
-    let isLoggedIn = true; // 測試用：正式環境應改由後端控制
-
-    function renderNavbar() {
-      const navbar = document.getElementById("navbar");
-      if (isLoggedIn) {
-        navbar.innerHTML = `
-          <li><a href="knowledge.html">照護知識</a></li>
-          <li><a href="patients.html">病患清單</a></li>
-          <li><a href="settings.html">個人化設定</a></li>
-          <li><a href="#" onclick="logout()">登出</a></li>
-        `;
-      } else {
-        navbar.innerHTML = `
-          <li><a href="knowledge.html">照護知識</a></li>
-          <li><a href="index.html">登入/註冊</a></li>
-        `;
-        document.body.innerHTML = "<h2 style='text-align:center;margin-top:2rem;'>請先登入才能查看病患紀錄</h2>";
-      }
-    }
-
-    function logout() {
-      alert("已登出！");
-      isLoggedIn = false;
-      window.location.href = "index.html";
-    }
-
-    renderNavbar();
-  </script>
-  <script src="script.js"></script>
-</body>
-</html>
->>>>>>> 310e5c89f1d77424bd0601a4ef35a7565a0768fb
+ㄏ

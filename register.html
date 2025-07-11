@@ -12,6 +12,7 @@
       align-items: center;
       height: 100vh;
       background: #e5ecf5;
+      font-family: sans-serif;
     }
     .auth-container {
       background: #fff;
@@ -62,11 +63,12 @@
 <body>
   <div class="auth-container">
     <h1>註冊帳號</h1>
+
     <label for="name">姓名：</label>
     <input type="text" id="name" placeholder="請輸入您的姓名" />
 
     <label for="role">角色：</label>
-    <select id="role">
+    <select id="role" multiple>
       <option value="family">家屬</option>
       <option value="doctor">醫生</option>
       <option value="consultant">諮詢師</option>
@@ -79,9 +81,28 @@
     <label for="password">密碼：</label>
     <input type="password" id="password" placeholder="請輸入密碼" />
 
-    <button onclick="alert('模擬註冊完成')">註冊</button>
+    <button onclick="register()">註冊</button>
 
     <p>已經有帳號？<a href="login.html">登入</a></p>
   </div>
+
+  <script>
+    function register() {
+      alert("模擬註冊完成！");
+      localStorage.setItem("isLoggedIn", "true");
+      window.location.href = "index.html";
+    }
+
+    function applySettings() {
+      const fontSize = localStorage.getItem('fontSize') || 'medium';
+      const theme = localStorage.getItem('theme') || 'light';
+      document.body.style.fontSize = fontSize === 'small' ? '14px' :
+                                     fontSize === 'large' ? '18px' : '16px';
+      document.body.style.backgroundColor = theme === 'dark' ? '#333' : '#e5ecf5';
+      document.body.style.color = theme === 'dark' ? '#eee' : '#333';
+    }
+
+    document.addEventListener("DOMContentLoaded", applySettings);
+  </script>
 </body>
 </html>

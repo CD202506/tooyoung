@@ -24,18 +24,21 @@
         <h3>林阿嬤</h3>
         <p>生日：1938/05/20</p>
         <a href="patient_record.html?patientId=1" class="cta-btn">查看紀錄</a>
+        <a href="assessment.html?patientId=1" class="cta-btn secondary">進行評估</a>
       </div>
       <div class="patient-card">
         <img src="https://via.placeholder.com/150" alt="病患照片">
         <h3>李大叔</h3>
         <p>生日：1945/11/02</p>
         <a href="patient_record.html?patientId=2" class="cta-btn">查看紀錄</a>
+        <a href="assessment.html?patientId=2" class="cta-btn secondary">進行評估</a>
       </div>
       <div class="patient-card">
         <img src="https://via.placeholder.com/150" alt="病患照片">
         <h3>王奶奶</h3>
         <p>生日：1940/03/15</p>
         <a href="patient_record.html?patientId=3" class="cta-btn">查看紀錄</a>
+        <a href="assessment.html?patientId=3" class="cta-btn secondary">進行評估</a>
       </div>
     </section>
   </main>
@@ -45,7 +48,7 @@
   </footer>
 
   <script>
-    let isLoggedIn = true; // 測試用：正式環境應由後端控制
+    let isLoggedIn = true; // 正式環境應改為後端控制
 
     function renderNavbar() {
       const navbar = document.getElementById("navbar");
@@ -61,6 +64,7 @@
           <li><a href="knowledge.html">照護知識</a></li>
           <li><a href="index.html">登入/註冊</a></li>
         `;
+        document.body.innerHTML = "<h2 style='text-align:center;margin-top:2rem;'>請先登入才能查看病患清單</h2>";
       }
     }
 
@@ -77,13 +81,8 @@
       document.body.style.fontSize = fontSize === 'small' ? '14px' :
                                      fontSize === 'large' ? '18px' : '16px';
 
-      if (theme === 'dark') {
-        document.body.style.backgroundColor = "#333";
-        document.body.style.color = "#eee";
-      } else {
-        document.body.style.backgroundColor = "#f9f9f9";
-        document.body.style.color = "#333";
-      }
+      document.body.style.backgroundColor = theme === 'dark' ? "#333" : "#f9f9f9";
+      document.body.style.color = theme === 'dark' ? "#eee" : "#333";
     }
 
     document.addEventListener("DOMContentLoaded", () => {

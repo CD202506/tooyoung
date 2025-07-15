@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>API 測試 - 新增紀錄</title>
+</head>
+<body>
+  <h1>API 測試：新增紀錄</h1>
+
+  <button onclick="sendTestRecord()">送出測試紀錄</button>
+  <pre id="result"></pre>
+
+  <script>
+    function sendTestRecord() {
+      fetch('http://localhost:3000/api/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: new Date().toISOString().split('T')[0],
+          score: 3,
+          summary: 'AD8 得分為 3，建議進一步評估',
+          type: 'AD8',
+          patientId: 'demo001'
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(err => {
+        document.getElementById('result').textContent = `錯誤：${err}`;
+      });
+    }
+  </script>
+</body>
+</html>

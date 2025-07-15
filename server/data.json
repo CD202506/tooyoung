@@ -1,0 +1,17 @@
+[
+  {
+    "patientId": "8888",
+    "assessmentType": "AD8",
+    "score": 0,
+    "result": "正常",
+    "createdAt": "2025-07-14T14:18:33.847Z"
+  },
+  {
+    "patient_id": "p1",
+    "type": "AD8",
+    "score": 0,
+    "conclusion": "",
+    "time": "2025-07-15",
+    "createdAt": "2025-07-15T07:58:28.922Z"
+  }
+]

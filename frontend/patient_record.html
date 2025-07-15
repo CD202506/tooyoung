@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>病患評估紀錄查詢｜失智症隨身記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "微軟正黑體", Arial, sans-serif; padding: 20px; background: #f7f7fa; }
+    .form-group { margin-bottom: 1em; }
+    label { display: block; margin-bottom: .5em; }
+    input, select { width: 100%; padding: 0.5em; }
+    table { border-collapse: collapse; width: 100%; background: #fff; margin-top: 2em;}
+    th, td { border: 1px solid #ddd; padding: 0.5em; text-align: center; }
+    th { background: #e0e8ef; }
+    .no-records { color: #888; margin-top: 2em; }
+    .search-btn { margin-top: 1em; padding: 0.5em 1em; }
+  </style>
+</head>
+<body>
+  <h2>病患評估紀錄查詢</h2>
+  <form id="searchForm">
+    <div class="form-group">
+      <label for="patientId">請輸入病患ID：</label>
+      <input type="text" id="patientId" name="patientId" required placeholder="例如：A001">
+    </div>
+    <button type="submit" class="search-btn">查詢紀錄</button>
+  </form>
+
+  <div id="recordsContainer"></div>
+
+  <script src="main.js"></script>
+  <script>
+    const form = document.getElementById('searchForm');
+    const recordsContainer = document.getElementById('recordsContainer');
+
+    // 畫出紀錄列表
+    function renderRecords(records) {
+      if (!records || records.length === 0) {
+        recordsContainer.innerHTML = '<div class="no-records">目前沒有該病患的紀錄。</div>';
+        return;
+      }
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>評估量表</th>
+              <th>分數</th>
+              <th>結論</th>
+              <th>評估日期</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      records
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // 新到舊
+        .forEach(rec => {
+          html += `<tr>
+            <td>${rec.assessmentType}</td>
+            <td>${rec.score}</td>
+            <td>${rec.result}</td>
+            <td>${rec.createdAt ? new Date(rec.createdAt).toLocaleString('zh-TW') : ''}</td>
+          </tr>`;
+        });
+      html += '</tbody></table>';
+      recordsContainer.innerHTML = html;
+    }
+
+    // 查詢表單送出
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const patientId = form.patientId.value.trim();
+      if (!patientId) return;
+      recordsContainer.innerHTML = '載入中...';
+      try {
+        const records = await fetchRecordsByPatient(patientId);
+        renderRecords(records);
+      } catch (err) {
+        recordsContainer.innerHTML = '<div class="no-records">查詢失敗，請稍後再試。</div>';
+      }
+    });
+
+    // 可自動帶入最近查過的ID
+    // window.addEventListener('DOMContentLoaded', () => {
+    //   const lastId = localStorage.getItem('lastPatientId');
+    //   if (lastId) {
+    //     form.patientId.value = lastId;
+    //     form.dispatchEvent(new Event('submit'));
+    //   }
+    // });
+    // form.patientId.addEventListener('input', e => {
+    //   localStorage.setItem('lastPatientId', e.target.value);
+    // });
+  </script>
+</body>
+</html>

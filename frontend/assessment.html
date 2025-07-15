@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>失智症隨身記｜新增評量紀錄（AD8自動出題/計分）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "微軟正黑體", Arial, sans-serif; background: #f7f7fa; margin: 0; padding: 0;}
+    .container { max-width: 520px; margin: 0 auto; padding: 24px; background:#fff; border-radius:18px; margin-top:32px; box-shadow:0 2px 18px #0001;}
+    h2 { margin-top: 0; }
+    label { display: block; margin-top: 16px; font-weight: bold;}
+    input, select, textarea { width: 100%; margin-top: 6px; padding: 7px; border-radius: 6px; border: 1px solid #bbb;}
+    .btn { background: #4689e2; color: #fff; border: none; border-radius: 7px; padding: 9px 25px; margin-top: 18px; font-size: 1.1em; cursor: pointer;}
+    .btn:hover { background: #3065b5;}
+    .questions-block { margin: 18px 0 0 0; padding: 14px 10px 10px 12px; border-radius: 13px; background: #f8faff;}
+    .questions-block label { display: inline-block; margin-right: 18px; margin-top:0;}
+    .score-tip { color: #19884b; font-weight: bold; }
+    .record-list { margin-top: 32px; }
+    .record-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
+    .record-table th, .record-table td { border: 1px solid #d7d7d7; padding: 7px 10px; text-align: center;}
+    .record-table th { background: #f3f7fb; }
+    @media (max-width: 700px) { .container { max-width: 100vw; margin-top:12px; padding:6px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>新增失智症評量紀錄</h2>
+    <label>選擇病患
+      <select id="patientSelect"></select>
+    </label>
+    <label>量表類型
+      <select id="typeSelect">
+        <option value="AD8">AD8 極早期失智症篩檢量表</option>
+        <!-- 之後可加CASI、SPMSQ、自訂量表等 -->
+      </select>
+    </label>
+    <div id="questionsArea"></div>
+    <div class="score-tip" id="scoreTip"></div>
+    <label>結論/判讀
+      <textarea id="conclusionInput" rows="2" placeholder="例如：疑似異常／正常／輕度障礙..."></textarea>
+    </label>
+    <button class="btn" id="saveBtn">送出評量</button>
+    <div id="msg" style="color:green; margin-top:12px;"></div>
+
+    <div class="record-list">
+      <h3>本病患歷次評量</h3>
+      <table class="record-table" id="recordTable">
+        <thead>
+          <tr><th>量表</th><th>分數</th><th>結論</th><th>日期</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    // ===== 1. AD8 題目題庫 =====
+    const scaleQuestions = {
+      "AD8": [
+        { q: "1. 判斷力上的困難：例如落入圈套或騙局，財務上不好的決定，買了對受禮者不合宜的禮物。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "2. 對活動和嗜好的興趣降低。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "3. 重複相同問題、故事和陳述。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "4. 在學習如何使用工具、設備和小器具上有困難，例如：電視、音響、冷氣機、洗衣機、熱水爐、微波爐、遙控器。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "5. 忘記正確的月份和年份。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "6. 處理複雜的財物上有困難，例如：個人或家庭的收支平衡、所得稅、繳費單。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "7. 記住約會的時間有困難。", a: ["是，有改變", "否，無改變", "不知道"] },
+        { q: "8. 有持續的思考和記憶方面的問題。", a: ["是，有改變", "否，無改變", "不知道"] }
+      ]
+    };
+
+    // ===== 2. 病患API =====
+    let patients = [];
+    async function loadPatients() {
+      const res = await fetch('/api/patients');
+      patients = await res.json();
+      const sel = document.getElementById('patientSelect');
+      sel.innerHTML = patients.map(p => `<option value="${p.id}">${p.nickname}（${p.diagnosis || ''}）</option>`).join('');
+    }
+
+    // ===== 3. 題目動態顯示 =====
+    function renderQuestions() {
+      const type = document.getElementById('typeSelect').value;
+      const area = document.getElementById('questionsArea');
+      const scoreTip = document.getElementById('scoreTip');
+      if (!scaleQuestions[type]) { area.innerHTML = ''; scoreTip.innerText = ''; return; }
+
+      area.innerHTML = `<div class="questions-block">${
+        scaleQuestions[type].map((item, i) => {
+          return `<div style="margin-bottom:8px">${item.q}<br>${
+            item.a.map((a, j) =>
+              `<label><input type="radio" name="q${i}" value="${j}" onchange="updateScore()"> ${a}</label>`
+            ).join(' ')
+          }</div>`;
+        }).join('')
+      }</div>`;
+      updateScore(); // 初次顯示分數
+    }
+
+    // ===== 4. 計算分數、即時顯示 =====
+    function updateScore() {
+      const type = document.getElementById('typeSelect').value;
+      const questions = scaleQuestions[type];
+      let score = 0, filled = 0;
+      questions.forEach((q, i) => {
+        const sel = document.querySelector('input[name="q'+i+'"]:checked');
+        if (sel) {
+          if (sel.value === "0") score += 1; // AD8題目 "0"=有異常，每題1分
+          filled += 1;
+        }
+      });
+      document.getElementById('scoreTip').innerText = `AD8目前得分：${score}（已答${filled}/${questions.length}題）`;
+    }
+    window.updateScore = updateScore; // 給 onchange 用
+
+    // ===== 5. 儲存送出 =====
+    async function saveAssessmentRecord() {
+      const patient_id = document.getElementById('patientSelect').value;
+      const type = document.getElementById('typeSelect').value;
+      const questions = scaleQuestions[type];
+      let score = 0, answers = [];
+      let allFilled = true;
+      questions.forEach((q, i) => {
+        const sel = document.querySelector('input[name="q'+i+'"]:checked');
+        let ans = sel ? Number(sel.value) : null;
+        answers.push(ans);
+        if (ans === 0) score += 1; // "0"為"有異常"
+        if (ans === null) allFilled = false;
+      });
+      if (!allFilled) {
+        alert('請將所有題目填完');
+        return;
+      }
+      const conclusion = document.getElementById('conclusionInput').value.trim();
+      const record = {
+        patient_id,
+        type,
+        answers,
+        score,
+        conclusion,
+        time: new Date().toISOString().slice(0,10)
+      };
+      const res = await fetch('/api/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+      if (res.ok) {
+        document.getElementById('msg').innerText = '評量紀錄已成功儲存！';
+        loadRecords();
+        document.getElementById('conclusionInput').value = '';
+        // 清除作答
+        scaleQuestions[type].forEach((q, i) => {
+          const checked = document.querySelector('input[name="q'+i+'"]:checked');
+          if (checked) checked.checked = false;
+        });
+        updateScore();
+      } else {
+        document.getElementById('msg').innerText = '儲存失敗，請重試';
+      }
+    }
+
+    // ===== 6. 查詢歷次分數 =====
+    async function loadRecords() {
+      const patient_id = document.getElementById('patientSelect').value;
+      const res = await fetch('/api/records');
+      const all = await res.json();
+      const list = all.filter(r => r.patient_id === patient_id && r.type === "AD8");
+      const tb = document.getElementById('recordTable').querySelector('tbody');
+      tb.innerHTML = list.length
+        ? list.map(r =>
+          `<tr>
+            <td>${r.type || ''}</td>
+            <td>${r.score ?? ''}</td>
+            <td>${r.conclusion || ''}</td>
+            <td>${r.time || ''}</td>
+          </tr>`
+        ).join('')
+        : '<tr><td colspan="4">尚無紀錄</td></tr>';
+    }
+
+    // ===== 7. 初始化 =====
+    loadPatients().then(() => {
+      renderQuestions();
+      loadRecords();
+      document.getElementById('patientSelect').onchange = loadRecords;
+      document.getElementById('typeSelect').onchange = function() {
+        renderQuestions();
+        loadRecords();
+      };
+    });
+
+    document.getElementById('saveBtn').onclick = saveAssessmentRecord;
+  </script>
+</body>
+</html>

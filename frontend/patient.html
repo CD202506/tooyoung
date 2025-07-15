@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>失智症隨身記｜病患專頁</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: "微軟正黑體", Arial, sans-serif; background: #f7f7fa; margin: 0; padding: 0;}
+    .container { max-width: 700px; margin: 0 auto; padding: 24px; }
+    .header { display: flex; align-items: center; gap: 22px; background: #fff; padding: 18px 20px; border-radius: 16px; margin-bottom: 18px; box-shadow: 0 2px 8px #0001;}
+    .avatar { width: 68px; height: 68px; border-radius: 50%; background: #eef; object-fit: cover; }
+    .nickname { font-size: 1.32em; font-weight: bold; }
+    .diagnosis, .tags { font-size: 1em; color: #444; margin-bottom: 6px;}
+    .tag { display: inline-block; background: #e3ecff; color: #3065b5; font-size: .93em; padding: 0 7px; border-radius: 10px; margin-right: 6px;}
+    .section-title { font-weight: bold; margin-top: 18px; font-size: 1.1em; color: #246;}
+    .record-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
+    .record-table th, .record-table td { border: 1px solid #d7d7d7; padding: 7px 10px; text-align: center;}
+    .record-table th { background: #f3f7fb; }
+    .comments { background: #fff; border-radius: 12px; padding: 13px 13px 3px; margin-top: 8px; box-shadow: 0 1px 5px #0001;}
+    .comment { border-bottom: 1px solid #eef; padding: 7px 0;}
+    .comment:last-child { border-bottom: none;}
+    .comment-nick { color: #3276cb; font-weight: bold;}
+    .comment-date { color: #888; font-size: 0.93em;}
+    .comment-content { margin-top: 2px;}
+    .comment-input { margin-top: 10px; display: flex; gap: 10px;}
+    .comment-input input { flex: 1; padding: 7px; border-radius: 6px; border: 1px solid #bbb;}
+    .comment-input button { background: #4689e2; color: #fff; border: none; border-radius: 7px; padding: 7px 17px; cursor: pointer;}
+    .comment-input button:hover { background: #3065b5;}
+    .not-login-tip { color: #c11; margin-top: 12px; font-size: 0.98em;}
+    @media (max-width: 700px) { .container { padding: 8px; } .header { flex-direction: column; gap: 10px; align-items: flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img class="avatar" id="avatar">
+      <div>
+        <div class="nickname" id="nickname"></div>
+        <div class="diagnosis" id="diagnosis"></div>
+        <div class="tags" id="tags"></div>
+      </div>
+    </div>
+
+    <div class="section-title">評量分數記錄</div>
+    <table class="record-table" id="recordTable">
+      <thead>
+        <tr><th>量表</th><th>分數</th><th>日期</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="section-title">照護留言</div>
+    <div class="comments" id="commentList"></div>
+    <div class="comment-input" id="commentInput">
+      <input type="text" id="commentText" placeholder="請輸入留言">
+      <button id="sendBtn">送出</button>
+    </div>
+    <div class="not-login-tip" id="notLoginTip" style="display:none;">
+      請先登入後才能留言
+    </div>
+  </div>
+  <script>
+    // ==== 取得病患ID ====
+    const urlParams = new URLSearchParams(window.location.search);
+    const pid = urlParams.get('pid') || 'p1';
+
+    // ==== 從API取得病患主檔 ====
+    async function fetchPatient(pid) {
+      const res = await fetch('/api/patients');
+      const patients = await res.json();
+      return patients.find(p => p.id === pid);
+    }
+    // ==== 評量紀錄API（若未上API，可先略過） ====
+    async function fetchRecords(pid) {
+      const res = await fetch('/api/records');
+      const all = await res.json();
+      return all.filter(r => r.patient_id === pid); // 你可以依資料設計調整
+    }
+    // ==== 留言API ====
+    async function fetchComments(pid) {
+      const res = await fetch(`/api/comments?patient_id=${encodeURIComponent(pid)}`);
+      return await res.json();
+    }
+    async function addComment(pid, nickname, content) {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: pid, nickname, content })
+      });
+      return await res.json();
+    }
+
+    // ==== 畫面渲染 ====
+    async function renderPatient() {
+      const p = await fetchPatient(pid);
+      if (!p) {
+        document.querySelector('.container').innerHTML = '<div style="color:red;padding:30px">查無此病患</div>';
+        return;
+      }
+      document.getElementById('avatar').src = p.avatar || 'https://api.dicebear.com/7.x/thumbs/svg?seed='+encodeURIComponent(p.nickname);
+      document.getElementById('nickname').innerText = p.nickname;
+      document.getElementById('diagnosis').innerText = p.diagnosis || '';
+      document.getElementById('tags').innerHTML = (p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');
+    }
+
+    async function renderRecords() {
+      // 假資料可以改這行
+      const records = await fetchRecords(pid);
+      const tb = document.getElementById('recordTable').querySelector('tbody');
+      tb.innerHTML = (records||[]).length
+        ? records.map(r =>
+            `<tr><td>${r.type}</td><td>${r.score}</td><td>${r.time}</td></tr>`
+          ).join('')
+        : '<tr><td colspan="3">尚無紀錄</td></tr>';
+    }
+
+    async function renderComments() {
+      const list = await fetchComments(pid);
+      document.getElementById('commentList').innerHTML =
+        list.length
+          ? list.map(c => `<div class="comment"><span class="comment-nick">${c.nickname}</span> <span class="comment-date">${(c.createdAt||'').slice(0,10)}</span><div class="comment-content">${c.content}</div></div>`).join('')
+          : '<div style="color:#aaa">尚無留言</div>';
+    }
+
+    // ==== 留言送出 ====
+    const isLogin = true; // 之後串OAuth再換
+    document.getElementById('sendBtn') && document.getElementById('sendBtn').addEventListener('click', async function() {
+      const txt = document.getElementById('commentText').value.trim();
+      if(!txt) return;
+      await addComment(pid, '我是你', txt);
+      document.getElementById('commentText').value = '';
+      renderComments();
+    });
+
+    if(isLogin) {
+      document.getElementById('commentInput').style.display = '';
+      document.getElementById('notLoginTip').style.display = 'none';
+    } else {
+      document.getElementById('commentInput').style.display = 'none';
+      document.getElementById('notLoginTip').style.display = '';
+    }
+
+    // ==== 載入畫面 ====
+    renderPatient();
+    renderRecords();
+    renderComments();
+  </script>
+</body>
+</html>

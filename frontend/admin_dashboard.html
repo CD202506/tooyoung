@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>管理員後台｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-wrap {max-width:900px; margin:44px auto 0; background:#fff; border-radius:14px; box-shadow:0 2px 16px #e2e5f2; padding:32px 30px;}
+        .admin-wrap h2 {color:#223066;margin-bottom:22px;}
+        .adm-tbl {width:100%;border-collapse:collapse;}
+        .adm-tbl th,.adm-tbl td{border:1px solid #d5d6df;padding:8px 6px;}
+        .adm-tbl th{background:#eef2fa;}
+        .adm-tbl tr:nth-child(even){background:#f9faff;}
+        .adm-btn {background:#e54e4e;color:#fff;border:none;border-radius:7px;padding:4px 12px;cursor:pointer;}
+        .adm-btn-block {background:#33a857;color:#fff;border:none;border-radius:7px;padding:4px 12px;}
+    </style>
+</head>
+<body>
+    <div class="admin-wrap">
+        <h2>平台管理員後台</h2>
+        <h3>所有旅人與團員（範例）</h3>
+        <table class="adm-tbl">
+            <thead><tr><th>旅人名稱</th><th>共管團員</th><th>公開案例數</th><th>操作</th></tr></thead>
+            <tbody>
+                <tr><td>奶奶</td><td>團員A、幸福旅伴</td><td>3</td><td><button class="adm-btn">移除旅人</button></td></tr>
+                <tr><td>爸爸</td><td>團員B、健康夥伴</td><td>1</td><td><button class="adm-btn">移除旅人</button></td></tr>
+            </tbody>
+        </table>
+        <h3>全體公告管理</h3>
+        <button class="adm-btn-block" onclick="alert('（範例）發布新公告')">發布新公告</button>
+        <h3 style="margin-top:28px;">系統監控／檢舉管理</h3>
+        <ul>
+            <li>檢舉：公開案例違規（1件）<button class="adm-btn" style="margin-left:12px;">處理</button></li>
+        </ul>
+    </div>
+</body>
+</html>

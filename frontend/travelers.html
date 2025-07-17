@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>旅人卡牆｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="navbar.js"></script>
+    <style>
+        .card-wall { display: flex; flex-wrap: wrap; gap: 36px; justify-content: flex-start; margin: 48px 0 0 0; }
+        .t-card2 {
+            background: #fff; border-radius: 18px; box-shadow: 0 2px 16px #e0e3e8;
+            padding: 30px 24px 18px 24px; width: 330px;
+            display: flex; flex-direction: column; position: relative;
+        }
+        .t-avatar { width: 54px; height: 54px; background: #eef3f9; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2.1rem; margin-bottom: 8px; font-family: "Segoe UI Emoji", "Noto Color Emoji", Arial; }
+        .t-title { font-weight: 700; font-size: 1.18rem; margin: 0 0 2px 0; color: #233055; letter-spacing: 0.5px; }
+        .t-sub { color: #898b96; font-size: 1rem; margin-bottom: 6px; }
+        .t-tags { margin-bottom: 6px; }
+        .t-tag { display: inline-block; background: #e7eafd; color: #3f51b5; border-radius: 11px; padding: 2px 12px 2px 10px; margin-right: 6px; font-size: 0.97rem; }
+        .t-link { color: #4d2fb2; text-decoration: underline; font-size: 0.97rem; cursor: pointer; margin-top: 4px; display: inline-block; }
+        .add-btn { background: #385fd7; color: #fff; border: none; border-radius: 7px; font-size: 1.09rem; padding: 9px 16px; margin: 14px 0 32px 0; font-weight: bold; cursor: pointer; }
+        .add-btn:hover { background: #263a7b; }
+        @media (max-width: 900px) { .card-wall { flex-direction: column; gap: 18px; } .t-card2 { width: 98vw; max-width: 450px; } }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="container" style="background:none;box-shadow:none;max-width:1400px;">
+        <h2>我管理的旅人</h2>
+        <button class="add-btn" onclick="showAddTraveler()">＋新增旅人</button>
+        <div class="card-wall" id="card-wall"></div>
+    </div>
+    <!-- 新增旅人彈窗(簡易示範) -->
+    <div id="addTravelerModal" style="display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.2);z-index:1000;">
+        <div style="background:#fff;padding:30px 26px;border-radius:14px;max-width:400px;margin:80px auto;">
+            <h3>新增旅人</h3>
+            <input type="text" id="newTravelerName" placeholder="旅人暱稱" style="width:100%;margin-bottom:10px;">
+            <input type="text" id="newTravelerTag" placeholder="主要旅程標籤(如阿茲、血管...)" style="width:100%;margin-bottom:10px;">
+            <button onclick="addTraveler()">確定新增</button>
+            <button onclick="closeAddTraveler()" style="margin-left:14px;">取消</button>
+        </div>
+    </div>
+    <script>
+        // 模擬旅人資料（未來由API/DB提供）
+        let travelersData = [
+            {id: 1, name:"奶奶", avatar:"😊", journey:"記憶旅程", tags:["阿茲", "長照3.0"]},
+            {id: 2, name:"爸爸", avatar:"🧡", journey:"溫暖旅程", tags:["血管旅程"]}
+        ];
+        function renderTravelerCards() {
+            const wall = document.getElementById('card-wall');
+            wall.innerHTML = travelersData.map(t => `
+                <div class="t-card2">
+                    <div class="t-avatar">${t.avatar}</div>
+                    <div class="t-title">${t.name}</div>
+                    <div class="t-sub">${t.journey}</div>
+                    <div class="t-tags">${t.tags.map(tag => `<span class="t-tag">${tag}</span>`).join("")}</div>
+                    <a class="t-link" onclick="goToTraveler(${t.id})">查看完整旅程</a>
+                </div>
+            `).join("");
+        }
+        function goToTraveler(id) {
+            window.location.href = "traveler_diary.html?id=" + id;
+        }
+        function showAddTraveler() {
+            document.getElementById('addTravelerModal').style.display = "";
+        }
+        function closeAddTraveler() {
+            document.getElementById('addTravelerModal').style.display = "none";
+        }
+        function addTraveler() {
+            const name = document.getElementById('newTravelerName').value;
+            const tag = document.getElementById('newTravelerTag').value;
+            if(name) {
+                travelersData.push({id:Date.now(), name, avatar:"👤", journey:"新旅程", tags:[tag]});
+                renderTravelerCards();
+                closeAddTraveler();
+            }
+        }
+        renderTravelerCards();
+    </script>
+</body>
+</html>

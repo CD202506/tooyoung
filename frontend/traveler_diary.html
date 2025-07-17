@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>旅人旅程日記｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="navbar.js"></script>
+    <style>
+        .main-wrap {max-width: 920px; margin: 36px auto 0;}
+        .traveler-hero {display: flex;align-items: center;gap: 22px;margin-bottom: 16px;}
+        .trav-avatar {width:74px;height:74px;background:#f3f4fa;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+        .trav-info h2 {margin:0 0 4px 0;font-size:1.42rem;color:#223066;}
+        .trav-info .desc {color:#4d5688;}
+        .trav-select {margin-left: auto;}
+        .trav-select select {font-size:1.05rem;padding:4px 8px;border-radius:8px;}
+        .co-manager-block { max-width:570px; margin:28px auto 34px auto; background:#fff; border-radius:14px;
+            box-shadow:0 2px 10px #e3e6ef; padding:22px 26px 16px;}
+        .co-manager-block h3 { color:#223066;margin:0 0 10px 0; }
+        #coManagersList li { margin-bottom:7px;font-size:1.05rem;}
+        #coManagersList span { color:#888;font-size:0.97rem;margin-left:8px;}
+        .co-manager-block button {
+            background:#385fd7;color:#fff;border:none;padding:7px 24px;border-radius:8px;
+            margin-top:10px;font-size:1.03rem;cursor:pointer;}
+        .co-manager-block button:hover { background:#263a7b; }
+        .timeline { max-width: 720px; margin: 38px auto 30px auto; }
+        .record-card { background:#fff; border-radius:13px; box-shadow:0 2px 14px #e0e3e8; padding:20px 22px 10px; margin-bottom:22px; position:relative;}
+        .rc-head { display:flex;align-items:center; }
+        .rc-title { font-weight:bold;color:#233055;font-size:1.15rem;margin-right:12px; }
+        .rc-type { color:#4e5bc3;background:#e8eaf6; border-radius:8px;padding:3px 13px;margin-right:12px;font-size:0.97rem; }
+        .rc-date { color:#99a1bb;font-size:0.96rem;margin-right:10px; }
+        .rc-tags { margin:8px 0; }
+        .rc-tag { display:inline-block;background:#f3eafd;color:#8228af;border-radius:11px;padding:1px 11px 1px 10px;margin-right:5px;font-size:0.96rem; }
+        .rc-content { color:#223; margin:8px 0 5px 0;}
+        .rc-actions { font-size:0.93rem;margin-top:4px;}
+        .rc-actions span { margin-right:14px; color:#676cae; cursor:pointer;}
+        .rc-actions .public {color:#3ec35e;}
+        .rc-actions .private {color:#bd5050;}
+        .rc-actions .shared {color:#c7933f;}
+        .comment-block { margin: 12px 0 0 0; padding:9px 0 0 10px; border-left: 3px solid #ddd; }
+        .comment-block li { color:#334477; font-size:0.96rem; margin-bottom:3px;}
+        .add-block { background: #f7f7fb; border-radius: 11px; padding: 18px 18px 8px; margin: 40px auto 18px; max-width: 520px;}
+        .add-block h3 { margin: 0 0 14px 0; color:#324397;}
+        .add-block textarea, .add-block select, .add-block input[type=text] { width: 100%; margin-bottom: 12px; font-size:1.01rem; border-radius:7px; padding:7px; border:1px solid #aaa;}
+        .add-block .label { font-weight:bold; margin-top:10px; display:block;}
+        .add-block button { background: #385fd7; color: #fff; border: none; border-radius: 7px; font-size: 1.06rem; padding: 7px 0; width: 100%; font-weight: bold; cursor: pointer; }
+        .file-preview {margin-top:5px;color:#888;font-size:0.97rem;}
+        #inviteMemberModal {display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;
+            background:rgba(0,0,0,0.22);z-index:1001;}
+        #inviteMemberModal > div {background:#fff;padding:34px 24px;border-radius:11px;
+            max-width:330px;margin:100px auto;}
+        .rc-attachment {margin:8px 0;color:#5260c6;}
+        .edit-modal-bg {display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);z-index:1111;}
+        .edit-modal {background:#fff;padding:28px 20px 20px;border-radius:13px;max-width:350px;margin:120px auto;}
+        @media (max-width:700px) {
+            .main-wrap {max-width:99vw;}
+            .timeline {max-width:99vw;}
+            .record-card {padding:10px 2vw;}
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="main-wrap">
+
+        <!-- 旅人頭像、簡介與切換 -->
+        <div class="traveler-hero">
+            <div class="trav-avatar" id="travAvatar"></div>
+            <div class="trav-info">
+                <h2 id="travelerName"></h2>
+                <div class="desc" id="travelerDesc"></div>
+            </div>
+            <div class="trav-select">
+                <select id="travelerSelector" onchange="switchTraveler()"></select>
+            </div>
+        </div>
+        
+        <!-- 共管團員管理區塊 -->
+        <div class="co-manager-block">
+            <h3>照護團員共管設定</h3>
+            <ul id="coManagersList" style="padding-left:22px;">
+                <!-- 動態產生列表 -->
+            </ul>
+            <button onclick="showInviteMember()">邀請新團員</button>
+        </div>
+        <!-- 邀請團員彈窗 -->
+        <div id="inviteMemberModal">
+            <div>
+                <h3>邀請團員共管旅人</h3>
+                <div style="font-size:0.96rem;color:#444;margin-bottom:7px;">請輸入團員 Email 或系統名稱</div>
+                <input type="text" id="inviteEmail" placeholder="Email 或 團員名稱" style="width:100%;margin-bottom:12px;">
+                <button onclick="inviteMember()">送出邀請</button>
+                <button onclick="closeInviteMember()" style="margin-left:12px;">取消</button>
+                <div id="inviteMsg" style="margin-top:12px;color:#239436;"></div>
+            </div>
+        </div>
+
+        <!-- 新增紀錄 -->
+        <div class="add-block">
+            <h3>新增旅人紀錄</h3>
+            <div class="label">紀錄類型</div>
+            <select id="recType">
+                <option value="日常">日常照護</option>
+                <option value="評量">評量紀錄</option>
+                <option value="留言">留言/互動</option>
+            </select>
+            <div class="label">內容</div>
+            <textarea id="recContent" rows="2" placeholder="輸入日記、照護經驗、評量分數或互動內容"></textarea>
+            <div class="label">標籤</div>
+            <input type="text" id="recTags" placeholder="可輸入多個標籤，用逗號分隔（如：情緒、飲食、CASI）">
+            <div class="label">附加檔案（可選）</div>
+            <input type="file" id="recFile" accept="image/*,audio/*,video/*,.pdf">
+            <div id="filePreview" class="file-preview"></div>
+            <div class="label">分享設定</div>
+            <select id="recVisibility" onchange="onRecVisChange()">
+                <option value="private">僅自己</option>
+                <option value="shared">指定團員</option>
+                <option value="public">平台公開</option>
+            </select>
+            <div id="recSharedWithBlock" style="display:none;">
+                <input type="text" id="recSharedWith" placeholder="請輸入要分享的團員名稱（多位用逗號）">
+            </div>
+            <button onclick="addRecord()">新增紀錄</button>
+        </div>
+        
+        <!-- 時序紀錄 -->
+        <div class="timeline" id="timeline"></div>
+    </div>
+
+    <!-- 編輯紀錄 Modal -->
+    <div class="edit-modal-bg" id="editModalBg">
+        <div class="edit-modal">
+            <h3>編輯紀錄</h3>
+            <div class="label">紀錄類型</div>
+            <select id="editRecType"></select>
+            <div class="label">內容</div>
+            <textarea id="editRecContent" rows="2"></textarea>
+            <div class="label">標籤</div>
+            <input type="text" id="editRecTags">
+            <div class="label">分享設定</div>
+            <select id="editRecVisibility" onchange="onEditRecVisChange()">
+                <option value="private">僅自己</option>
+                <option value="shared">指定團員</option>
+                <option value="public">平台公開</option>
+            </select>
+            <div id="editRecSharedWithBlock" style="display:none;">
+                <input type="text" id="editRecSharedWith" placeholder="請輸入要分享的團員名稱（多位用逗號）">
+            </div>
+            <button onclick="confirmEditRecord()">儲存變更</button>
+            <button onclick="closeEditModal()" style="margin-left:8px;">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // 多旅人
+        let travelerList = [
+            {id:1, name:"奶奶", avatar:"😊", desc:"熱愛散步，家人與團員共同照護中。"},
+            {id:2, name:"爸爸", avatar:"🧡", desc:"曾有高血壓病史，目前維持健康飲食。"},
+            {id:3, name:"媽媽", avatar:"👩🏻‍🦳", desc:"個性開朗，喜歡唱歌與手作。"}
+        ];
+        let travelerId = Number(new URLSearchParams(location.search).get("id") || 1);
+        function switchTraveler() {
+            travelerId = Number(document.getElementById('travelerSelector').value);
+            renderTravelerHero();
+            renderCoManagers();
+            renderTimeline();
+        }
+        function renderTravelerHero() {
+            const t = travelerList.find(x=>x.id===travelerId) || travelerList[0];
+            document.getElementById('travAvatar').innerText = t.avatar;
+            document.getElementById('travelerName').innerText = t.name + " 旅程日記";
+            document.getElementById('travelerDesc').innerText = t.desc;
+            document.getElementById('travelerSelector').innerHTML =
+                travelerList.map(x=>
+                    `<option value="${x.id}" ${x.id===travelerId?'selected':''}>${x.name}</option>`
+                ).join("");
+        }
+        renderTravelerHero();
+
+        // 共管團員資料
+        let coManagersMap = {
+            1: [
+                {name:"團員A", email:"userA@mail.com", role:"管理員"},
+                {name:"幸福旅伴", email:"happy@mail.com", role:"可評量"}
+            ],
+            2: [
+                {name:"團員B", email:"bbb@mail.com", role:"管理員"},
+                {name:"健康夥伴", email:"well@mail.com", role:"可評量"}
+            ],
+            3: [
+                {name:"團員C", email:"ccc@mail.com", role:"管理員"}
+            ]
+        };
+        function renderCoManagers() {
+            const cm = coManagersMap[travelerId] || [];
+            document.getElementById('coManagersList').innerHTML = cm.map(
+                u=>`<li>${u.name}（${u.role}）<span>[${u.email}]</span></li>`
+            ).join("");
+        }
+        function showInviteMember() {
+            document.getElementById('inviteMemberModal').style.display = "";
+            document.getElementById('inviteMsg').innerText = "";
+            document.getElementById('inviteEmail').value = "";
+        }
+        function closeInviteMember() {
+            document.getElementById('inviteMemberModal').style.display = "none";
+        }
+        function inviteMember() {
+            let email = document.getElementById('inviteEmail').value.trim();
+            if(email) {
+                (coManagersMap[travelerId]=coManagersMap[travelerId]||[]).push({name:"新團員", email, role:"可評量"});
+                renderCoManagers();
+                document.getElementById('inviteMsg').innerText = "邀請已發送！對方接受後會自動加入共管團員";
+                setTimeout(closeInviteMember, 1400);
+            }
+        }
+        renderCoManagers();
+
+        // 假紀錄資料，分旅人存
+        let timelineMap = {
+            1: [
+                {
+                    id: 1,
+                    type: "評量",
+                    content: "CASI分數：16，旅人情緒穩定。",
+                    date: "2025-07-14",
+                    tags: ["CASI", "情緒"],
+                    visibility: "private",
+                    sharedWith: [],
+                    comments: [{by:"幸福旅伴",text:"感謝分享～"}],
+                    attachment: {name:"casi_16.pdf"}
+                },
+                {
+                    id: 2,
+                    type: "日常",
+                    content: "旅人今早散步30分鐘，心情很好。",
+                    date: "2025-07-13",
+                    tags: ["運動", "情緒"],
+                    visibility: "public",
+                    sharedWith: [],
+                    comments: [],
+                    attachment: null
+                },
+                {
+                    id: 3,
+                    type: "留言",
+                    content: "照護夥伴提醒明天回診，有問題歡迎再留言。",
+                    date: "2025-07-12",
+                    tags: ["提醒"],
+                    visibility: "shared",
+                    sharedWith: ["團員A", "幸福旅伴"],
+                    comments: [{by:"團員A",text:"收到！"}],
+                    attachment: null
+                }
+            ]
+        };
+        // 建立空紀錄
+        for(let i of [2,3]) if(!timelineMap[i]) timelineMap[i]=[];
+
+        // 檔案上傳預覽
+        document.getElementById('recFile').onchange = function(e){
+            const f = e.target.files[0];
+            if(!f){document.getElementById('filePreview').innerText="";return;}
+            document.getElementById('filePreview').innerText="已選擇："+f.name+" ("+Math.round(f.size/1024)+"KB)";
+        };
+
+        function renderTimeline() {
+            let timelineData = timelineMap[travelerId]||[];
+            document.getElementById('timeline').innerHTML = timelineData
+            .sort((a,b)=>b.date.localeCompare(a.date))
+            .map(r=>`
+                <div class="record-card">
+                    <div class="rc-head">
+                        <span class="rc-title">${r.type}</span>
+                        <span class="rc-type">${r.tags?.[0]||""}</span>
+                        <span class="rc-date">${r.date}</span>
+                    </div>
+                    <div class="rc-tags">${r.tags.map(tag=>`<span class="rc-tag">${tag}</span>`).join("")}</div>
+                    <div class="rc-content">${r.content}</div>
+                    ${r.attachment?`<div class="rc-attachment">📎附件：<a href="#">${r.attachment.name}</a></div>`:""}
+                    <div class="rc-actions">
+                        <span class="${r.visibility}">${getVisText(r)}</span>
+                        <span onclick="addCommentPrompt(${r.id})">💬留言</span>
+                        <span onclick="showEditModal(${r.id})">✏️編輯</span>
+                        <span onclick="deleteRecord(${r.id})" style="color:#d63f43;">🗑️刪除</span>
+                    </div>
+                    ${r.comments?.length?
+                        `<div class="comment-block"><ul>${
+                            r.comments.map((c,j)=>`<li><b>${c.by}：</b>${c.text} <span onclick="editComment(${r.id},${j})" style="color:#447;cursor:pointer;">✏️</span> <span onclick="deleteComment(${r.id},${j})" style="color:#b24e54;cursor:pointer;">🗑️</span></li>`).join("")
+                        }</ul></div>`:""
+                    }
+                </div>
+            `).join("");
+        }
+        function getVisText(r) {
+            if(r.visibility==="private") return "僅自己可見";
+            if(r.visibility==="shared") return "分享給："+r.sharedWith.join(",");
+            if(r.visibility==="public") return "平台公開";
+            return "";
+        }
+        function addRecord() {
+            const type = document.getElementById('recType').value;
+            const content = document.getElementById('recContent').value.trim();
+            const tags = document.getElementById('recTags').value.split(",").map(s=>s.trim()).filter(Boolean);
+            const visibility = document.getElementById('recVisibility').value;
+            const sharedWith = visibility==="shared"?document.getElementById('recSharedWith').value.split(",").map(s=>s.trim()).filter(Boolean):[];
+            const file = document.getElementById('recFile').files[0];
+            if(!content){ alert("請輸入內容！"); return;}
+            let newRec = {
+                id: Date.now(),
+                type, content, date: new Date().toISOString().slice(0,10),
+                tags, visibility, sharedWith, comments:[],
+                attachment: file?{name:file.name}:null
+            };
+            (timelineMap[travelerId]=timelineMap[travelerId]||[]).unshift(newRec);
+            document.getElementById('recContent').value = '';

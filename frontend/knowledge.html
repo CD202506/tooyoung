@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>旅人照護知識｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="navbar.js"></script>
+    <style>
+        .knowledge-cards {
+            display: flex;
+            justify-content: center;
+            gap: 36px;
+            margin: 54px 0;
+            flex-wrap: wrap;
+        }
+        .k-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 18px #e0e3e8;
+            padding: 38px 36px 30px;
+            width: 340px;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .k-card h2 {
+            font-size: 1.35rem;
+            margin: 0 0 10px 0;
+            color: #243360;
+        }
+        .k-card p {
+            color: #444;
+            font-size: 1rem;
+            margin: 0;
+        }
+        @media (max-width: 900px) {
+            .knowledge-cards { flex-direction: column; align-items: center; gap:20px;}
+            .k-card { width: 98%; max-width: 450px;}
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="container" style="background:none;box-shadow:none;max-width:1200px;">
+        <div class="knowledge-cards">
+            <div class="k-card">
+                <h2>認識旅程的早期徵兆</h2>
+                <p>
+                    旅人在旅程初期可能會經歷記憶力改變、語言表達困難或行為變化。團員及時覺察，能讓旅人獲得更好的支持與陪伴。
+                </p>
+            </div>
+            <div class="k-card">
+                <h2>與旅人溝通的小祕訣</h2>
+                <p>
+                    使用簡單親切的語言、給旅人充裕時間回應、以溫柔包容的態度傾聽與陪伴，讓旅人旅程更有安全感。
+                </p>
+            </div>
+            <div class="k-card">
+                <h2>旅伴的自我照顧</h2>
+                <p>
+                    旅伴的身心健康同樣重要！適時尋求夥伴支持、休息紓壓、保有自我空間，能讓陪伴旅人走得更遠。
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

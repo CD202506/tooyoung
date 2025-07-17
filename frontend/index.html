@@ -1,91 +1,31 @@
-<!-- ... head 和 style 省略，body 內容如下 ... -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>時空迷航雜記｜照護知識平台</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .landing-wrap {max-width:580px; margin:70px auto 0; background:#fff; border-radius:14px; box-shadow:0 2px 14px #d8e3f0; padding:38px 32px;}
+        .landing-wrap h1 {text-align:center;color:#243066;font-size:2.1rem;margin:0 0 16px 0;}
+        .landing-wrap .sub {color:#4b5888;text-align:center;margin-bottom:20px;}
+        .landing-btns {text-align:center;margin-top:24px;}
+        .landing-btns a, .landing-btns button {background:#385fd7;color:#fff;border:none;border-radius:8px;font-size:1.12rem;padding:10px 32px;margin:8px 0;cursor:pointer;display:inline-block;text-decoration:none;}
+        .landing-btns a:hover, .landing-btns button:hover {background:#263a7b;}
+    </style>
+</head>
 <body>
-  <div class="container">
-    <div class="toolbar">
-      <div>
-        <span class="filter">篩選標籤：
-          <select id="tagFilter"><option value="">全部</option></select>
-        </span>
-      </div>
-      <button class="add-btn" id="addPatientBtn">＋新增病患</button>
-    </div>
-    <div id="cardList" class="card-list"></div>
-  </div>
-  <!-- 新增病患對話框 -->
-  <div id="addPatientDialog" style="display:none; position:fixed;left:0;top:0;width:100vw;height:100vh;background:#0005;z-index:999;align-items:center;justify-content:center;">
-    <div style="background:#fff;padding:26px 34px;border-radius:16px;max-width:300px;min-width:200px;">
-      <h4 style="margin-top:0;">新增病患</h4>
-      <div style="margin-bottom:8px;">暱稱 <input type="text" id="npNickname" style="width:100%;"></div>
-      <div style="margin-bottom:8px;">診斷 <input type="text" id="npDiagnosis" style="width:100%;"></div>
-      <div style="margin-bottom:8px;">標籤 <input type="text" id="npTags" placeholder="以逗號分隔" style="width:100%;"></div>
-      <button onclick="saveNewPatient()">新增</button>
-      <button onclick="hideAddPatient()">取消</button>
-    </div>
-  </div>
-  <script>
-    let patients = [];
-    async function loadPatients() {
-      const res = await fetch('/api/patients');
-      patients = await res.json();
-      renderTagOptions();
-      renderPatients();
-    }
-
-    function getAllTags() {
-      const allTags = new Set();
-      patients.forEach(p => (p.tags||[]).forEach(tag => allTags.add(tag)));
-      return Array.from(allTags);
-    }
-
-    function renderTagOptions() {
-      const tagFilter = document.getElementById('tagFilter');
-      const allTags = getAllTags();
-      tagFilter.innerHTML = '<option value="">全部</option>' +
-        allTags.map(tag => `<option value="${tag}">${tag}</option>`).join('');
-    }
-
-    function renderPatients() {
-      const tag = document.getElementById('tagFilter').value;
-      const list = tag ? patients.filter(p => (p.tags||[]).includes(tag)) : patients;
-      document.getElementById('cardList').innerHTML =
-        list.map(p => `
-        <div class="patient-card">
-          <img class="avatar" src="${p.avatar || 'https://api.dicebear.com/7.x/thumbs/svg?seed='+encodeURIComponent(p.nickname)}" alt="avatar">
-          <div class="nickname">${p.nickname}</div>
-          <div class="diagnosis">${p.diagnosis || ''}</div>
-          <div class="tags">${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-          <a class="more-link" href="patient.html?pid=${p.id}">更多...</a>
+    <div class="landing-wrap">
+        <h1>時空迷航雜記</h1>
+        <div class="sub">友善失智旅人與家屬的照護知識、交流與評量記錄平台</div>
+        <p style="color:#567;line-height:1.8;margin-bottom:22px;">
+            本平台提供溫暖、親切的失智旅人照護知識、旅程紀錄、團隊協作與評量工具，幫助您隨時記錄照護點滴、分享經驗，並與專業照護團隊攜手守護每一段旅程。<br>
+            <br>無論是家屬、志工、專業團隊或關心者，都能在這裡找到支持與資源。
+        </p>
+        <div class="landing-btns">
+            <a href="knowledge.html">進入照護知識</a>
+            <a href="login.html">登入/註冊</a>
+            <button onclick="window.location.href='travelers.html'">旅人卡牆（範例）</button>
         </div>
-        `).join('');
-    }
-
-    document.getElementById('tagFilter').addEventListener('change', renderPatients);
-
-    function showAddPatient() {
-      document.getElementById('addPatientDialog').style.display = 'flex';
-      document.getElementById('npNickname').value = '';
-      document.getElementById('npDiagnosis').value = '';
-      document.getElementById('npTags').value = '';
-    }
-    function hideAddPatient() {
-      document.getElementById('addPatientDialog').style.display = 'none';
-    }
-    async function saveNewPatient() {
-      const nickname = document.getElementById('npNickname').value.trim();
-      const diagnosis = document.getElementById('npDiagnosis').value.trim();
-      const tags = document.getElementById('npTags').value.split(',').map(t=>t.trim()).filter(Boolean);
-      if (!nickname) { alert('請輸入暱稱'); return; }
-      const newPatient = { nickname, diagnosis, tags, avatar: "" };
-      await fetch('/api/patients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPatient)
-      });
-      hideAddPatient();
-      loadPatients();
-    }
-
-    document.getElementById('addPatientBtn').onclick = showAddPatient;
-    loadPatients();
-  </script>
+    </div>
 </body>
+</html>

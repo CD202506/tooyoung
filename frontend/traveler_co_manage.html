@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>共管團員管理｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="navbar.js"></script>
+    <style>
+        .co-manager-block {
+            max-width:520px; margin:44px auto 30px auto; background:#fff; border-radius:14px;
+            box-shadow:0 2px 10px #e3e6ef; padding:28px 30px 24px;
+        }
+        .co-manager-block h3 { color:#223066;margin:0 0 14px 0; }
+        #coManagersList li { margin-bottom:8px;font-size:1.05rem;}
+        #coManagersList span { color:#888;font-size:0.97rem;margin-left:8px;}
+        .co-manager-block button {
+            background:#385fd7;color:#fff;border:none;padding:7px 24px;border-radius:8px;
+            margin-top:12px;font-size:1.03rem;cursor:pointer;
+        }
+        .co-manager-block button:hover { background:#263a7b; }
+        /* 彈窗 */
+        #inviteMemberModal {display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;
+            background:rgba(0,0,0,0.22);z-index:1001;}
+        #inviteMemberModal > div {background:#fff;padding:34px 24px;border-radius:11px;
+            max-width:330px;margin:100px auto;}
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="co-manager-block">
+        <h3>照護團員共管設定</h3>
+        <ul id="coManagersList" style="padding-left:22px;">
+            <!-- 動態產生列表 -->
+        </ul>
+        <button onclick="showInviteMember()">邀請新團員</button>
+    </div>
+    <!-- 邀請團員彈窗 -->
+    <div id="inviteMemberModal">
+        <div>
+            <h3>邀請團員共管旅人</h3>
+            <div style="font-size:0.96rem;color:#444;margin-bottom:7px;">請輸入團員 Email 或系統名稱</div>
+            <input type="text" id="inviteEmail" placeholder="Email 或 團員名稱" style="width:100%;margin-bottom:12px;">
+            <button onclick="inviteMember()">送出邀請</button>
+            <button onclick="closeInviteMember()" style="margin-left:12px;">取消</button>
+            <div id="inviteMsg" style="margin-top:12px;color:#239436;"></div>
+        </div>
+    </div>
+    <script>
+        // 假團員列表，實務上由API載入
+        let coManagers = [
+            {name:"團員A", email:"userA@mail.com", role:"管理員"},
+            {name:"幸福旅伴", email:"happy@mail.com", role:"可評量"}
+        ];
+        function renderCoManagers() {
+            document.getElementById('coManagersList').innerHTML = coManagers.map(
+                u=>`<li>${u.name}（${u.role}）<span>[${u.email}]</span></li>`
+            ).join("");
+        }
+        function showInviteMember() {
+            document.getElementById('inviteMemberModal').style.display = "";
+            document.getElementById('inviteMsg').innerText = "";
+            document.getElementById('inviteEmail').value = "";
+        }
+        function closeInviteMember() {
+            document.getElementById('inviteMemberModal').style.display = "none";
+        }
+        function inviteMember() {
+            // 實際應調API: /api/invite_member
+            let email = document.getElementById('inviteEmail').value.trim();
+            if(email) {
+                coManagers.push({name:"新團員", email, role:"可評量"});
+                renderCoManagers();
+                document.getElementById('inviteMsg').innerText = "邀請已發送！對方接受後會自動加入共管團員";
+                setTimeout(closeInviteMember, 1400);
+            }
+        }
+        renderCoManagers();
+    </script>
+</body>
+</html>

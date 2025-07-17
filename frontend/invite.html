@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>接受團員邀請｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .invite-wrap { max-width: 430px; margin: 100px auto 0; background: #fff; border-radius: 13px; box-shadow: 0 2px 14px #e0e3e8; padding: 34px 28px; text-align:center;}
+        .invite-btn { background:#385fd7;color:#fff;border:none;padding:10px 30px;border-radius:8px;font-size:1.11rem;margin:14px 0 0 0; }
+    </style>
+</head>
+<body>
+    <div class="invite-wrap">
+        <h2>接受成為旅人照護團員</h2>
+        <p>您已被 <b>團員A</b> 邀請，成為 <b>奶奶</b> 的照護共管團員。</p>
+        <button class="invite-btn" onclick="acceptInvite()">接受邀請</button>
+        <div id="inviteResult" style="margin-top:12px;color:#269430;"></div>
+    </div>
+    <script>
+        function acceptInvite(){
+            // 應調API: /api/accept_invite
+            document.getElementById('inviteResult').innerText = "邀請已接受，您已成功加入旅人共管團隊！";
+        }
+    </script>
+</body>
+</html>

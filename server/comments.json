@@ -1,32 +1,8 @@
 [
   {
-    "patient_id": "p1",
-    "nickname": "幸福兒子",
-    "content": "本週情緒穩定，藥物無副作用。",
-    "createdAt": "2025-07-14T09:10:00Z"
-  },
-  {
-    "patient_id": "p1",
-    "nickname": "長照諮詢師",
-    "content": "建議補充B12，已約下週復診。",
-    "createdAt": "2025-07-14T10:30:00Z"
-  },
-  {
-    "patient_id": "p2",
-    "nickname": "快樂家屬",
-    "content": "飲食控制下血壓進步。",
-    "createdAt": "2025-07-13T08:50:00Z"
-  },
-  {
-    "patient_id": "p1",
-    "nickname": "我是你",
-    "content": "111",
-    "createdAt": "2025-07-15T07:19:40.920Z"
-  },
-  {
-    "patient_id": "p1",
-    "nickname": "我是你",
-    "content": "11q",
-    "createdAt": "2025-07-15T07:45:05.874Z"
+    "traveler_id": "t1",
+    "nickname": "家屬小張",
+    "content": "今天阿光情緒不錯。",
+    "createdAt": "2025-07-16T12:12:00"
   }
 ]

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>登入｜時空迷航雜記</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>團員登入/註冊</h2>
+        <form id="loginForm" action="#" method="post">
+            <input type="text" id="username" placeholder="團員姓名" required>
+            <input type="password" id="password" placeholder="密碼" required>
+            <button type="submit">登入</button>
+        </form>
+        <form id="registerForm" action="#" method="post" style="margin-top:20px;">
+            <input type="text" id="reg-username" placeholder="新團員姓名" required>
+            <input type="password" id="reg-password" placeholder="新密碼" required>
+            <button type="submit">註冊</button>
+        </form>
+        <button id="guestBtn" style="margin-top:20px;">以旅伴身份瀏覽（僅能查看摘要）</button>
+    </div>
+    <script>
+        document.getElementById('loginForm').onsubmit = function(e){
+            e.preventDefault();
+            localStorage.setItem('loggedIn', '1');
+            localStorage.setItem('username', document.getElementById('username').value || '團員');
+            localStorage.removeItem('visitor');
+            window.location.href = "travelers.html";
+        };
+        document.getElementById('registerForm').onsubmit = function(e){
+            e.preventDefault();
+            localStorage.setItem('loggedIn', '1');
+            localStorage.setItem('username', document.getElementById('reg-username').value || '團員');
+            localStorage.removeItem('visitor');
+            window.location.href = "travelers.html";
+        };
+        document.getElementById('guestBtn').onclick = function() {
+            localStorage.setItem('visitor', '1');
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('username');
+            window.location.href = "knowledge.html";
+        };
+    </script>
+</body>
+</html>

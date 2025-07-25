@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>FAQ | 時空迷航雜記</title>
+  <title>新增旅伴 | 時空迷航雜記</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#25744e">
@@ -15,12 +15,20 @@
 <body>
   <div id="navbar"></div>
   <main class="main-container">
-    <h1>常見問題 FAQ</h1>
+    <h1>新增旅伴</h1>
     <div class="card">
-      <h3>Q：如何新增旅伴？</h3>
-      <p>A：點選導覽列「旅伴」頁面，點擊「新增旅伴」按鈕即可。</p>
-      <h3>Q：可以多人共同管理嗎？</h3>
-      <p>A：可至「共同管理旅伴」頁面，邀請協作者。</p>
+      <form id="addTravelerForm">
+        <label for="name">姓名：</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="relation">關係：</label>
+        <input type="text" id="relation" name="relation" required>
+        <br>
+        <label for="note">備註：</label>
+        <input type="text" id="note" name="note">
+        <br>
+        <button type="submit" class="btn">新增</button>
+      </form>
     </div>
   </main>
 </body>

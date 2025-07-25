@@ -1,44 +1,29 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>通知中心｜時空迷航雜記</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .noti-wrap {max-width:560px; margin:54px auto 0; background:#fff; border-radius:13px; box-shadow:0 2px 16px #e3e3ef; padding:38px 34px;}
-        .noti-wrap h2 {color:#243066;text-align:center;margin-bottom:22px;}
-        .noti-list {list-style:none;padding:0;}
-        .noti-list li {background:#f8f9fc;border-radius:8px;padding:13px 18px;margin-bottom:12px;font-size:1.07rem;color:#32405e;display:flex;align-items:center;}
-        .noti-list .unread {font-weight:bold;}
-        .noti-list .date {margin-left:auto;color:#878ea9;font-size:0.96rem;}
-        .noti-list .btn-read {margin-left:18px;color:#385fd7;cursor:pointer;}
-        @media (max-width:650px){.noti-wrap{padding:14px 2vw;}}
-    </style>
+  <meta charset="UTF-8">
+  <title>通知中心 | 時空迷航雜記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="noti-wrap">
-        <h2>通知中心</h2>
-        <ul class="noti-list" id="notiList"></ul>
-        <button style="margin:20px auto 0;display:block;" onclick="markAllRead()">全部標記已讀</button>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>通知中心</h1>
+    <div class="card">
+      <h2>最新通知</h2>
+      <ul>
+        <li>📅 2025-07-24　團隊成員「王小明」已加入旅伴列表</li>
+        <li>💬 2025-07-22　您有一則新的日記留言</li>
+        <li>🧑‍⚕️ 2025-07-20　照護師邀請您填寫認知評估</li>
+      </ul>
     </div>
-    <script>
-        let notis = [
-            {msg:"您已被邀請共管旅人『奶奶』", date:"2025-07-15", unread:true},
-            {msg:"旅人『奶奶』有新留言：感謝您的分享～", date:"2025-07-14", unread:true},
-            {msg:"旅人『爸爸』評量紀錄已由『幸福旅伴』公開分享", date:"2025-07-13", unread:false}
-        ];
-        function renderNotis(){
-            document.getElementById('notiList').innerHTML = notis.map((n,i)=>`
-                <li class="${n.unread?'unread':''}">
-                    ${n.msg}
-                    <span class="date">${n.date}</span>
-                    ${n.unread?`<span class="btn-read" onclick="markRead(${i})">標記已讀</span>`:""}
-                </li>
-            `).join("");
-        }
-        function markRead(i){notis[i].unread=false;renderNotis();}
-        function markAllRead(){notis.forEach(n=>n.unread=false);renderNotis();}
-        renderNotis();
-    </script>
+  </main>
 </body>
 </html>

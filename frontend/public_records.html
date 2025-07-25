@@ -1,48 +1,31 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>旅人公開案例｜時空迷航雜記</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .timeline { max-width: 660px; margin: 38px auto 30px auto; }
-        .record-card { background:#fff; border-radius:13px; box-shadow:0 2px 14px #e0e3e8; padding:20px 22px 10px; margin-bottom:22px; }
-        .rc-head { display:flex;align-items:center; }
-        .rc-title { font-weight:bold;color:#233055;font-size:1.15rem;margin-right:12px; }
-        .rc-type { color:#4e5bc3;background:#e8eaf6; border-radius:8px;padding:3px 13px;margin-right:12px;font-size:0.97rem; }
-        .rc-date { color:#99a1bb;font-size:0.96rem;margin-right:10px; }
-        .rc-tags { margin:8px 0; }
-        .rc-tag { display:inline-block;background:#f3eafd;color:#8228af;border-radius:11px;padding:1px 11px 1px 10px;margin-right:5px;font-size:0.96rem; }
-        .rc-content { color:#223; margin:8px 0 5px 0;}
-        .rc-actions { font-size:0.93rem;margin-top:4px;}
-    </style>
+  <meta charset="UTF-8">
+  <title>公開日記/留言 | 時空迷航雜記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div id="navbar"></div>
-    <div class="container" style="background:none;box-shadow:none;max-width:800px;">
-        <h2>旅人旅程公開案例</h2>
-        <div class="timeline" id="timeline"></div>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>公開日記與留言紀錄</h1>
+    <div class="card">
+      <ul>
+        <li>
+          <strong>王大明</strong>：感謝團隊協助，最近精神有明顯好轉！（2025-07-22）
+        </li>
+        <li>
+          <strong>社工陳老師</strong>：請大家記得定期填寫評估量表。（2025-07-18）
+        </li>
+      </ul>
     </div>
-    <script>
-        // 假資料，實務應由API GET /api/public_records
-        const publicRecords = [
-            {id:1, type:"評量", content:"CASI分數：16，旅人情緒穩定。", date:"2025-07-14", tags:["CASI","情緒"]},
-            {id:2, type:"日常", content:"旅人今早散步30分鐘，心情很好。", date:"2025-07-13", tags:["運動","情緒"]},
-            {id:3, type:"留言", content:"照護夥伴提醒明天回診。", date:"2025-07-12", tags:["提醒"]}
-        ];
-        document.getElementById('timeline').innerHTML = publicRecords
-            .sort((a,b)=>b.date.localeCompare(a.date))
-            .map(r=>`
-                <div class="record-card">
-                    <div class="rc-head">
-                        <span class="rc-title">${r.type}</span>
-                        <span class="rc-type">${r.tags?.[0]||""}</span>
-                        <span class="rc-date">${r.date}</span>
-                    </div>
-                    <div class="rc-tags">${r.tags.map(tag=>`<span class="rc-tag">${tag}</span>`).join("")}</div>
-                    <div class="rc-content">${r.content}</div>
-                </div>
-            `).join("");
-    </script>
+  </main>
 </body>
 </html>

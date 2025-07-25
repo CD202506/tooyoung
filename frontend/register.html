@@ -1,53 +1,36 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>註冊帳號｜時空迷航雜記</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .reg-container { max-width:410px; margin:64px auto 0;background:#fff; border-radius:14px; box-shadow:0 2px 14px #e0e3e8; padding:32px 30px 20px; }
-        .reg-container h2 { text-align:center;color:#223066;margin-bottom:18px;}
-        .reg-container label { font-weight:bold;margin-top:14px;display:block;}
-        .reg-container input[type=text], .reg-container input[type=email], .reg-container input[type=password] {width:100%;margin-bottom:10px;padding:7px;border-radius:7px;border:1px solid #aaa;}
-        .reg-container button { width:100%; background:#385fd7;color:#fff; border:none;border-radius:7px;font-size:1.09rem;padding:9px 0;margin-top:12px;font-weight:bold;cursor:pointer;}
-        .reg-container .note {color:#777;font-size:0.95rem;}
-        .reg-container .link {text-align:center;margin-top:16px;}
-        .reg-container .link a {color:#3558b2;text-decoration:underline;}
-    </style>
+  <meta charset="UTF-8">
+  <title>註冊新帳號 | 時空迷航雜記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="reg-container">
-        <h2>註冊新帳號</h2>
-        <form id="registerForm">
-            <label for="regName">顯示名稱</label>
-            <input type="text" id="regName" required placeholder="您的姓名或暱稱">
-            <label for="regEmail">Email</label>
-            <input type="email" id="regEmail" required placeholder="聯絡信箱（登入使用）">
-            <label for="regPwd">密碼</label>
-            <input type="password" id="regPwd" required placeholder="6位數以上，英數混合">
-            <label for="regPwd2">確認密碼</label>
-            <input type="password" id="regPwd2" required placeholder="再輸入一次密碼">
-            <div class="note">註冊即同意平台使用規則及資料保護政策。</div>
-            <button type="submit">註冊</button>
-        </form>
-        <div id="regMsg" style="color:#278900;text-align:center;margin-top:14px;"></div>
-        <div class="link">
-            已有帳號？<a href="login.html">點此登入</a>
-        </div>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>註冊新帳號</h1>
+    <div class="card">
+      <form id="registerForm">
+        <label for="email">Email：</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="password">密碼：</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <label for="name">姓名：</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <button type="submit" class="btn">註冊</button>
+      </form>
+      <p>已經有帳號？<a href="login.html">前往登入</a></p>
     </div>
-    <script>
-        document.getElementById('registerForm').onsubmit = function(e){
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const pwd = document.getElementById('regPwd').value;
-            const pwd2 = document.getElementById('regPwd2').value;
-            if (!name || !email || !pwd || !pwd2) { alert('所有欄位必填'); return;}
-            if (pwd.length < 6) { alert('密碼至少6碼'); return;}
-            if (pwd !== pwd2) { alert('兩次密碼不一致'); return;}
-            document.getElementById('regMsg').innerText = "註冊成功！請前往登入。";
-            setTimeout(()=>window.location.href="login.html", 1500);
-        };
-    </script>
+  </main>
 </body>
 </html>

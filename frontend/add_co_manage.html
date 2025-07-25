@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>?啣??勗?蝞∠?鈭?| 憭望?頨怨?</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1c8855">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">擐?</a></li>
+      <li><a href="login.html">?餃</a> / <a href="register.html">閮餃?</a></li>
+      <li><a href="travelers.html">?撈?”</a></li>
+      <li><a href="relationship_management.html">??蝞∠?</a></li>
+      <li><a href="traveler_diary.html">?撈?亥?</a></li>
+      <li><a href="traveler_co_manage.html">?勗?蝞∠?</a></li>
+      <li><a href="terms.html">雿輻??甈?/a></li>
+    </ul>
+  </nav>
+  <main>
+    <h1>?啣??勗?蝞∠?鈭?/h1>
+    <form id="addCoManageForm" method="POST" action="/api/co-manage">
+      <label for="traveler">?豢??撈嚗?/label>
+      <select id="traveler" name="traveler">
+        <option value="1">????/option>
+        <option value="2">??蝢?/option>
+      </select><br>
+      <label for="user">蝞∠?鈭箏董??</label>
+      <input type="text" id="user" name="user" required><br>
+      <label for="permission">甈?嚗?/label>
+      <select id="permission" name="permission">
+        <option value="read">?炎閬?/option>
+        <option value="write">?舐楊頛?/option>
+      </select><br>
+      <button type="submit">?啣?</button>
+      <button type="button" onclick="window.location.href='traveler_co_manage.html'">餈??”</button>
+    </form>
+  </main>
+<script src="main.js"></script></body>
+</html>
+

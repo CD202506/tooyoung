@@ -1,0 +1,22 @@
+{
+  "name": "失智症隨身記",
+  "short_name": "隨身記",
+  "description": "失智照護日記・照護團隊雲端協作",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f7f7fa",
+  "theme_color": "#1c8855",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

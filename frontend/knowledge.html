@@ -1,69 +1,37 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>旅人照護知識｜時空迷航雜記</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="navbar.js"></script>
-    <style>
-        .knowledge-cards {
-            display: flex;
-            justify-content: center;
-            gap: 36px;
-            margin: 54px 0;
-            flex-wrap: wrap;
-        }
-        .k-card {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 2px 18px #e0e3e8;
-            padding: 38px 36px 30px;
-            width: 340px;
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-        .k-card h2 {
-            font-size: 1.35rem;
-            margin: 0 0 10px 0;
-            color: #243360;
-        }
-        .k-card p {
-            color: #444;
-            font-size: 1rem;
-            margin: 0;
-        }
-        @media (max-width: 900px) {
-            .knowledge-cards { flex-direction: column; align-items: center; gap:20px;}
-            .k-card { width: 98%; max-width: 450px;}
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>認知評估工具 | 時空迷航雜記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div id="navbar"></div>
-    <div class="container" style="background:none;box-shadow:none;max-width:1200px;">
-        <div class="knowledge-cards">
-            <div class="k-card">
-                <h2>認識旅程的早期徵兆</h2>
-                <p>
-                    旅人在旅程初期可能會經歷記憶力改變、語言表達困難或行為變化。團員及時覺察，能讓旅人獲得更好的支持與陪伴。
-                </p>
-            </div>
-            <div class="k-card">
-                <h2>與旅人溝通的小祕訣</h2>
-                <p>
-                    使用簡單親切的語言、給旅人充裕時間回應、以溫柔包容的態度傾聽與陪伴，讓旅人旅程更有安全感。
-                </p>
-            </div>
-            <div class="k-card">
-                <h2>旅伴的自我照顧</h2>
-                <p>
-                    旅伴的身心健康同樣重要！適時尋求夥伴支持、休息紓壓、保有自我空間，能讓陪伴旅人走得更遠。
-                </p>
-            </div>
-        </div>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>認知評估工具</h1>
+    <p>提供 AD8 等常用失智症量表，簡單自評並存檔追蹤。</p>
+    <div class="card">
+      <form>
+        <label for="ad8-q1">1. 記憶力明顯變差？</label>
+        <select id="ad8-q1" name="q1">
+          <option value="0">否</option>
+          <option value="1">是</option>
+        </select><br><br>
+        <label for="ad8-q2">2. 處理複雜事情有困難？</label>
+        <select id="ad8-q2" name="q2">
+          <option value="0">否</option>
+          <option value="1">是</option>
+        </select><br><br>
+        <button type="submit" class="btn">提交評估</button>
+      </form>
     </div>
+  </main>
 </body>
 </html>

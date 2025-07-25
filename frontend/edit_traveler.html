@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>蝺刻摩?鞈? | 憭望?頨怨?</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1c8855">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 撠汗??-->
+  <nav>
+    <ul>
+      <li><a href="index.html">擐?</a></li>
+      <li class="active"><a href="travelers.html">?撈?”</a></li>
+      <li><a href="traveler_diary.html">?撈?亥?</a></li>
+      <li><a href="relationship_management.html">??蝞∠?</a></li>
+      <li><a href="patient_record.html">?蝝??/a></li>
+      <li><a href="assessment.html">閰摯撌亙</a></li>
+      <li><a href="knowledge.html">?亥??扯風</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li><a href="about.html">???/a></li>
+      <li style="margin-left:auto">
+        <a href="login.html">?餃</a> / <a href="register.html">閮餃?</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="form-section">
+    <h2 style="margin-bottom:16px;">蝺刻摩?鞈?</h2>
+    <form>
+      <label for="avatar">?剖?嚗?賂?</label>
+      <input type="file" id="avatar" name="avatar" accept="image/*">
+      <div style="margin: 8px 0;">
+        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="avatar" style="width:64px;height:64px;border-radius:50%;display:block;">
+        <span style="font-size:0.96em;color:#888;">?桀??剖?</span>
+      </div>
+
+      <label for="name">憪?/?梁迂</label>
+      <input type="text" id="name" name="name" value="?喟??? required>
+
+      <label for="role">閫</label>
+      <select id="role" name="role" required>
+        <option value="">隢??/option>
+        <option value="family" selected>摰嗅惇嚗蜓閬霅瑁?/option>
+        <option value="co_caregiver">???扯風?</option>
+        <option value="pro">撠平鈭箏嚗霅?蝷曉極嚗?/option>
+      </select>
+
+      <label for="desc">?隤芣?/??</label>
+      <input type="text" id="desc" name="desc" value="銝餉??扯風??慦賢直" maxlength="40">
+
+      <button type="submit" class="btn">?脣?靽格</button>
+    </form>
+    <div style="margin-top:18px;">
+      <a href="member_profile.html" style="color:#188f58;">???犖瑼?</a>
+    </div>
+  </div>
+</body>
+</html>
+

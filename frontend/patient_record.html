@@ -1,95 +1,84 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>病患評估紀錄查詢｜失智症隨身記</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: "微軟正黑體", Arial, sans-serif; padding: 20px; background: #f7f7fa; }
-    .form-group { margin-bottom: 1em; }
-    label { display: block; margin-bottom: .5em; }
-    input, select { width: 100%; padding: 0.5em; }
-    table { border-collapse: collapse; width: 100%; background: #fff; margin-top: 2em;}
-    th, td { border: 1px solid #ddd; padding: 0.5em; text-align: center; }
-    th { background: #e0e8ef; }
-    .no-records { color: #888; margin-top: 2em; }
-    .search-btn { margin-top: 1em; padding: 0.5em 1em; }
-  </style>
+  <title>?蝝??| 憭望?頨怨?</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1c8855">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>病患評估紀錄查詢</h2>
-  <form id="searchForm">
-    <div class="form-group">
-      <label for="patientId">請輸入病患ID：</label>
-      <input type="text" id="patientId" name="patientId" required placeholder="例如：A001">
+  <!-- 撠汗??-->
+  <nav>
+    <ul>
+      <li><a href="index.html">擐?</a></li>
+      <li><a href="travelers.html">?撈?”</a></li>
+      <li><a href="traveler_diary.html">?撈?亥?</a></li>
+      <li><a href="relationship_management.html">??蝞∠?</a></li>
+      <li class="active"><a href="patient_record.html">?蝝??/a></li>
+      <li><a href="assessment.html">閰摯撌亙</a></li>
+      <li><a href="knowledge.html">?亥??扯風</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li><a href="about.html">???/a></li>
+      <li style="margin-left:auto">
+        <a href="login.html">?餃</a> / <a href="register.html">閮餃?</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="main-content">
+    <h2 style="margin-bottom:18px;">?蝝??/h2>
+    <div style="display:flex;flex-wrap:wrap;gap:32px;">
+      <div style="flex:1;min-width:260px;">
+        <h3 style="color:#188f58;margin-bottom:10px;font-size:1.07em;">???箸鞈?</h3>
+        <table style="width:100%;margin-bottom:18px;font-size:1.05em;">
+          <tr>
+            <td style="color:#888;">憪?</td>
+            <td>暺??/td>
+          </tr>
+          <tr>
+            <td style="color:#888;">?批</td>
+            <td>??/td>
+          </tr>
+          <tr>
+            <td style="color:#888;">?箇?撟?/td>
+            <td>1942</td>
+          </tr>
+          <tr>
+            <td style="color:#888;">閮箸</td>
+            <td>憭望??頛漲嚗?/td>
+          </tr>
+          <tr>
+            <td style="color:#888;">銝餉??舐窗鈭?/td>
+            <td>????摮怠?嚗?/td>
+          </tr>
+          <tr>
+            <td style="color:#888;">?舐窗?餉店</td>
+            <td>0912-345678</td>
+          </tr>
+        </table>
+        <a href="assessment.html" class="btn" style="padding:8px 22px;">?脰?閰摯?”</a>
+      </div>
+      <div style="flex:2;min-width:320px;">
+        <h3 style="color:#188f58;margin-bottom:10px;font-size:1.07em;">??蝝??閬?/h3>
+        <ul style="font-size:1.05em;line-height:2.1;margin-bottom:18px;">
+          <li>2025/07/20?MMSE嚗?7??頛漲嚗?/li>
+          <li>2025/06/05?AD8嚗??????交霈?</li>
+          <li>2025/05/15?頝?????/li>
+          <li>2025/04/30?蝎曄?閰摯蝛拙?</li>
+          <li>?游?蝝??閬?a href="traveler_diary.html" style="color:#188f58;">?撈?亥?</a></li>
+        </ul>
+        <a href="add_diary.html" class="btn" style="background:#fff;color:#1c8855;border:1.5px solid #1c8855;padding:8px 22px;">嚗憓???/a>
+      </div>
     </div>
-    <button type="submit" class="search-btn">查詢紀錄</button>
-  </form>
-
-  <div id="recordsContainer"></div>
-
-  <script src="main.js"></script>
-  <script>
-    const form = document.getElementById('searchForm');
-    const recordsContainer = document.getElementById('recordsContainer');
-
-    // 畫出紀錄列表
-    function renderRecords(records) {
-      if (!records || records.length === 0) {
-        recordsContainer.innerHTML = '<div class="no-records">目前沒有該病患的紀錄。</div>';
-        return;
-      }
-      let html = `
-        <table>
-          <thead>
-            <tr>
-              <th>評估量表</th>
-              <th>分數</th>
-              <th>結論</th>
-              <th>評估日期</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-      records
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // 新到舊
-        .forEach(rec => {
-          html += `<tr>
-            <td>${rec.assessmentType}</td>
-            <td>${rec.score}</td>
-            <td>${rec.result}</td>
-            <td>${rec.createdAt ? new Date(rec.createdAt).toLocaleString('zh-TW') : ''}</td>
-          </tr>`;
-        });
-      html += '</tbody></table>';
-      recordsContainer.innerHTML = html;
-    }
-
-    // 查詢表單送出
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const patientId = form.patientId.value.trim();
-      if (!patientId) return;
-      recordsContainer.innerHTML = '載入中...';
-      try {
-        const records = await fetchRecordsByPatient(patientId);
-        renderRecords(records);
-      } catch (err) {
-        recordsContainer.innerHTML = '<div class="no-records">查詢失敗，請稍後再試。</div>';
-      }
-    });
-
-    // 可自動帶入最近查過的ID
-    // window.addEventListener('DOMContentLoaded', () => {
-    //   const lastId = localStorage.getItem('lastPatientId');
-    //   if (lastId) {
-    //     form.patientId.value = lastId;
-    //     form.dispatchEvent(new Event('submit'));
-    //   }
-    // });
-    // form.patientId.addEventListener('input', e => {
-    //   localStorage.setItem('lastPatientId', e.target.value);
-    // });
-  </script>
+    <hr style="margin:30px 0 18px 0; border:none;border-top:1.2px solid #e1e1e8;">
+    <div style="color:#888;font-size:0.98em;">
+      -- ?箸鞈???閬???甈霅瑟??∠汗 --
+    </div>
+  </div>
 </body>
 </html>
+

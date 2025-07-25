@@ -1,46 +1,35 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>登入｜時空迷航雜記</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>登入 / 註冊 | 時空迷航雜記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <h2>團員登入/註冊</h2>
-        <form id="loginForm" action="#" method="post">
-            <input type="text" id="username" placeholder="團員姓名" required>
-            <input type="password" id="password" placeholder="密碼" required>
-            <button type="submit">登入</button>
-        </form>
-        <form id="registerForm" action="#" method="post" style="margin-top:20px;">
-            <input type="text" id="reg-username" placeholder="新團員姓名" required>
-            <input type="password" id="reg-password" placeholder="新密碼" required>
-            <button type="submit">註冊</button>
-        </form>
-        <button id="guestBtn" style="margin-top:20px;">以旅伴身份瀏覽（僅能查看摘要）</button>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>登入 / 註冊</h1>
+    <div class="card">
+      <form id="loginForm">
+        <label for="email">Email：</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="password">密碼：</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit" class="btn">登入</button>
+      </form>
+      <hr>
+      <p>還沒有帳號？ <a href="register.html">註冊</a></p>
+      <p>或 <a href="index.html">以訪客身分瀏覽</a></p>
     </div>
-    <script>
-        document.getElementById('loginForm').onsubmit = function(e){
-            e.preventDefault();
-            localStorage.setItem('loggedIn', '1');
-            localStorage.setItem('username', document.getElementById('username').value || '團員');
-            localStorage.removeItem('visitor');
-            window.location.href = "travelers.html";
-        };
-        document.getElementById('registerForm').onsubmit = function(e){
-            e.preventDefault();
-            localStorage.setItem('loggedIn', '1');
-            localStorage.setItem('username', document.getElementById('reg-username').value || '團員');
-            localStorage.removeItem('visitor');
-            window.location.href = "travelers.html";
-        };
-        document.getElementById('guestBtn').onclick = function() {
-            localStorage.setItem('visitor', '1');
-            localStorage.removeItem('loggedIn');
-            localStorage.removeItem('username');
-            window.location.href = "knowledge.html";
-        };
-    </script>
+  </main>
 </body>
 </html>

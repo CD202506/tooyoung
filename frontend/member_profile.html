@@ -1,78 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>會員中心｜時空迷航雜記</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .profile-wrap {max-width:480px; margin:50px auto 0; background:#fff; border-radius:14px; box-shadow:0 2px 14px #e0e3e8; padding:36px 32px;}
-        .profile-wrap h2 {text-align:center;color:#243066;margin-bottom:18px;}
-        .profile-wrap label {font-weight:bold;margin-top:13px;display:block;}
-        .profile-wrap input[type=text], .profile-wrap input[type=email], .profile-wrap input[type=password] {width:100%;margin-bottom:10px;padding:7px;border-radius:7px;border:1px solid #aaa;}
-        .profile-wrap button { width:100%; background:#385fd7;color:#fff; border:none;border-radius:7px;font-size:1.09rem;padding:9px 0;margin-top:14px;font-weight:bold;cursor:pointer;}
-        .profile-wrap .note {color:#777;font-size:0.95rem;}
-        .profile-list {margin-top:24px;padding:0;}
-        .profile-list li {margin-bottom:8px;color:#4b5888;}
-        .profile-actions {margin-top:18px;text-align:center;}
-        .profile-actions button {margin:0 8px 0 0;}
-        @media (max-width:600px){.profile-wrap{padding:18px 4vw;}}
-    </style>
+  <meta charset="UTF-8">
+  <title>個人檔案 | 時空迷航雜記</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="profile-wrap">
-        <h2>會員中心</h2>
-        <form id="profileForm">
-            <label for="pName">顯示名稱</label>
-            <input type="text" id="pName" required value="團員A">
-            <label for="pEmail">Email</label>
-            <input type="email" id="pEmail" required value="userA@mail.com">
-            <label for="pPhone">手機（選填）</label>
-            <input type="text" id="pPhone" value="">
-            <button type="submit">儲存資料</button>
-        </form>
-        <div class="profile-actions">
-            <button onclick="showPwdBox()">變更密碼</button>
-            <button onclick="window.location.href='logout.html'">登出</button>
-        </div>
-        <div id="profileMsg" style="color:#1a881a;text-align:center;margin-top:12px;"></div>
-        <ul class="profile-list">
-            <li>我共管的旅人：奶奶、爸爸</li>
-            <li>已收到 2 筆新留言提醒</li>
-            <li>帳號註冊日：2025-07-16</li>
-        </ul>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>個人檔案</h1>
+    <div class="card">
+      <p><strong>姓名：</strong>王大明</p>
+      <p><strong>Email：</strong>demo@example.com</p>
+      <p><strong>角色：</strong>照護者</p>
+      <a href="settings.html" class="btn">帳號設定</a>
     </div>
-    <!-- 變更密碼彈窗 -->
-    <div id="pwdModal" style="display:none;position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.19);z-index:1001;">
-        <div style="background:#fff;padding:30px 22px;border-radius:12px;max-width:320px;margin:120px auto;">
-            <h3>變更密碼</h3>
-            <input type="password" id="oldPwd" placeholder="舊密碼" style="width:100%;margin-bottom:10px;">
-            <input type="password" id="newPwd" placeholder="新密碼" style="width:100%;margin-bottom:10px;">
-            <input type="password" id="newPwd2" placeholder="再次輸入新密碼" style="width:100%;margin-bottom:10px;">
-            <button onclick="changePwd()">確定</button>
-            <button onclick="closePwdBox()" style="margin-left:8px;">取消</button>
-            <div id="pwdMsg" style="margin-top:10px;color:#238e13;"></div>
-        </div>
-    </div>
-    <script>
-        document.getElementById('profileForm').onsubmit = function(e){
-            e.preventDefault();
-            document.getElementById('profileMsg').innerText = "已儲存！";
-        };
-        function showPwdBox() {
-            document.getElementById('pwdModal').style.display = "";
-            document.getElementById('pwdMsg').innerText = "";
-            document.getElementById('oldPwd').value="";
-            document.getElementById('newPwd').value="";
-            document.getElementById('newPwd2').value="";
-        }
-        function closePwdBox() {document.getElementById('pwdModal').style.display="none";}
-        function changePwd(){
-            let o=document.getElementById('oldPwd').value, n=document.getElementById('newPwd').value, n2=document.getElementById('newPwd2').value;
-            if(!o||!n||!n2){alert('所有欄位必填');return;}
-            if(n!==n2){alert('兩次密碼不一致');return;}
-            document.getElementById('pwdMsg').innerText = "密碼已變更！";
-            setTimeout(closePwdBox,1200);
-        }
-    </script>
+  </main>
 </body>
 </html>

@@ -1,31 +1,38 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>時空迷航雜記｜照護知識平台</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .landing-wrap {max-width:580px; margin:70px auto 0; background:#fff; border-radius:14px; box-shadow:0 2px 14px #d8e3f0; padding:38px 32px;}
-        .landing-wrap h1 {text-align:center;color:#243066;font-size:2.1rem;margin:0 0 16px 0;}
-        .landing-wrap .sub {color:#4b5888;text-align:center;margin-bottom:20px;}
-        .landing-btns {text-align:center;margin-top:24px;}
-        .landing-btns a, .landing-btns button {background:#385fd7;color:#fff;border:none;border-radius:8px;font-size:1.12rem;padding:10px 32px;margin:8px 0;cursor:pointer;display:inline-block;text-decoration:none;}
-        .landing-btns a:hover, .landing-btns button:hover {background:#263a7b;}
-    </style>
+  <meta charset="UTF-8">
+  <title>時空迷航雜記 | 首頁</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25744e">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="navbar.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="landing-wrap">
-        <h1>時空迷航雜記</h1>
-        <div class="sub">友善失智旅人與家屬的照護知識、交流與評量記錄平台</div>
-        <p style="color:#567;line-height:1.8;margin-bottom:22px;">
-            本平台提供溫暖、親切的失智旅人照護知識、旅程紀錄、團隊協作與評量工具，幫助您隨時記錄照護點滴、分享經驗，並與專業照護團隊攜手守護每一段旅程。<br>
-            <br>無論是家屬、志工、專業團隊或關心者，都能在這裡找到支持與資源。
-        </p>
-        <div class="landing-btns">
-            <a href="knowledge.html">進入照護知識</a>
-            <a href="login.html">登入/註冊</a>
-            <button onclick="window.location.href='travelers.html'">旅人卡牆（範例）</button>
-        </div>
+  <div id="navbar"></div>
+  <main class="main-container">
+    <h1>歡迎來到時空迷航雜記</h1>
+    <p>這是一個專為失智症患者、家屬與照護者設計的跨裝置隨身紀錄平台。你可以：</p>
+    <ul>
+      <li>記錄並管理每天的照護日記、心情與重要時刻</li>
+      <li>隨時存取專業的照護知識、常見Q&A與評估工具</li>
+      <li>邀請家人、照護團隊共編與追蹤</li>
+      <li>建立專屬關係網，管理旅伴及聯絡方式</li>
+      <li>善用 PWA（可加入主畫面）＋RWD，手機平板電腦都好用</li>
+    </ul>
+    <div class="card">
+      <h2>最新公告</h2>
+      <p>歡迎試用新版的時空迷航雜記，支援多用戶協作與旅伴日記時光軸！</p>
     </div>
+    <div class="card">
+      <h2>立即開始</h2>
+      <a href="traveler_diary.html" class="btn">開始寫日記</a>
+      <a href="login.html" class="btn">登入 / 註冊</a>
+    </div>
+  </main>
 </body>
 </html>

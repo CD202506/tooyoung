@@ -1,0 +1,20 @@
+{
+  "display_name": "小Z",
+  "legal_name": null,
+  "birth_year": null,
+  "gender": null,
+  "diagnosis_date": null,
+  "diagnosis_type": "YOAD",
+  "stage": {
+    "auto": "early",
+    "manual": null
+  },
+  "privacy_mode": "masked",
+  "caregivers": [],
+  "hospital_info": {
+    "name": null,
+    "dept": null,
+    "doctor": null
+  },
+  "notes": ""
+}

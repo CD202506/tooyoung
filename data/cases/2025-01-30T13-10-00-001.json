@@ -1,0 +1,37 @@
+{
+  "id": "2025-01-30T13-10-00-001",
+  "slug": "imagined-traffic-accident",
+  "event_datetime": "2025-01-30T13:10:00+08:00",
+  "title_zh": "看到車禍",
+  "short_sentence_zh": "未經歷的事情卻被敘述得有畫面。",
+  "summary_zh": "行經木柵路段，導航顯示前方車禍，我提前下交流道。梅卻突然描述看到「車禍畫面」，像是親眼目擊一般，但實際上我們從未看到任何事故現場。她的描述是自我腦補的場景，反映出情境推論與真實記憶的混淆。",
+  "tags": [
+    "情境錯置",
+    "記憶扭曲"
+  ],
+  "photos": [
+    "/images/cases/imagined-traffic-accident/02.jpg"
+  ],
+  "recorded_at": "2025-01-30T13:10:00+08:00",
+  "title": {
+    "zh": "看到車禍",
+    "en": null
+  },
+  "short_sentence": {
+    "zh": "看到車禍",
+    "en": null
+  },
+  "summary": {
+    "zh": "行經木柵路段，導航顯示前方車禍，我提前下交流道。她卻突然描述看到「車禍畫面」，像是親眼目擊一般，但實際上我們從未看到任何事故現場。她的描述是自我腦補的場景，反映出情境推論與真實記憶的混淆。",
+    "en": null
+  },
+  "full_story": {
+    "zh": "",
+    "en": null
+  },
+  "content_zh": "",
+  "attachments": [],
+  "created_at": "2025-01-30T13:10:00+08:00",
+  "updated_at": "2025-12-07T09:35:19.441Z",
+  "data_version": 3
+}

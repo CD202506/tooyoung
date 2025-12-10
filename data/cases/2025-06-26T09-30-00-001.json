@@ -1,0 +1,54 @@
+{
+    "id":  "2025-06-26T09-30-00-001",
+    "event_datetime":  "2025-06-26T09:30:00+08:00",
+    "recorded_at":  "2025-06-26T22:15:00+08:00",
+    "slug":  "20250626-clinic-followup-disorientation",
+    "title":  {
+                  "zh":  "回診當天，他在熟悉的醫院感到迷失",
+                  "en":  null
+              },
+    "short_sentence":  {
+                           "zh":  "站在醫院門口，他問：這裡是哪裡？我們要做什麼？",
+                           "en":  null
+                       },
+    "summary":  {
+                    "zh":  "2025/06/26 的例行回診中，他再次出現地點辨識困難，無法理解自己身處醫院，也不確定前來的目的。",
+                    "en":  null
+                },
+    "full_story":  {
+                       "zh":  "2025 年 6 月 26 日早上帶他到醫院回診……（略）",
+                       "en":  null
+                   },
+    "tags":  [
+                 "orientation",
+                 "memory",
+                 "clinic_followup"
+             ],
+    "clinical_links":  {
+                           "mmse":  [
+
+                                    ],
+                           "cdr_stage":  "",
+                           "ad8_flags":  [
+
+                                         ],
+                           "notes":  ""
+                       },
+    "medical_interpretation":  {
+                                   "zh":  "地點辨識困難與前後文連結困難……（略）",
+                                   "en":  null
+                               },
+    "care_advice":  {
+                        "zh":  "回診後 1–2 日內，可再次與他複述本次就醫過程……",
+                        "en":  null
+                    },
+    "related_cases":  [
+
+                      ],
+    "created_at":  "2025-06-26T22:15:00+08:00",
+    "updated_at":  "2025-06-26T22:15:00+08:00",
+    "data_version":  1,
+    "photos":  [
+                   "/images/cases/20250626-clinic-followup-disorientation/01.jpg"
+               ]
+}

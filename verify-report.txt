@@ -1,0 +1,23 @@
+
+[Folders]
+✔ data/cases exists
+✔ db/tooyoung.db exists
+✔ src/app/api exists
+✔ src/components exists
+
+[SQLite]
+✔ cases_index found
+✔ tags_index found
+✔ cases_fts found
+
+[JSON Cases]
+✔ 2 files parsed
+✔ All slugs unique
+✔ All IDs unique
+
+[API Test]
+✔ GET /api/cases
+✖ GET (failed) /api/cases/[slug] status 404
+✔ GET /api/latest
+✔ GET /api/search
+✔ GET /api/tags/[tag]

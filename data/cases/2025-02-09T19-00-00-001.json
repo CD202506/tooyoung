@@ -1,0 +1,48 @@
+{
+  "id": "2025-02-09T19-00-00-001",
+  "slug": "bought-too-much-food-planning-issue",
+  "event_datetime": "2025-02-09T19:00:00+08:00",
+  "title_zh": "一次買太多食物，無法計算需要量",
+  "short_sentence_zh": "她買了大量食物，並誤以為每種都需要。",
+  "summary_zh": "患者喪失食物需求量的估算能力，也在過程中難以連結情境（誰要吃、有哪些限制）。",
+  "full_story_zh": "我：你買了什麼東西，怎麼這麼多？\n梅：牛肉湯餃、牛肉麵、鍋貼、小黃瓜。我先買了牛肉湯餃，後來發現湯餃是豬肉餃，所以又買了牛肉麵。\n我：那鍋貼是誰要吃的？\n梅：哪我吃牛肉湯餃，鍋貼給你吃！\n我：……",
+  "tags": [
+    "計畫能力下降",
+    "執行功能障礙",
+    "食物判斷能力下降"
+  ],
+  "medical_interpretation": {
+    "zh": "購物行為中反覆購買、買過量、混淆誰能吃什麼，典型反映前額葉執行功能退化。",
+    "en": null
+  },
+  "care_advice": {
+    "zh": "購物任務應避免獨立執行，必要時陪同購物，避免因混淆導致浪費或飲食風險。",
+    "en": null
+  },
+  "related_cases": [],
+  "created_at": "2025-02-09T19:00:00+08:00",
+  "updated_at": "2025-12-07T09:38:47.152Z",
+  "photos": [
+    "/images/cases/bought-too-much-food-planning-issue/02.jpg"
+  ],
+  "recorded_at": "2025-02-09T19:00:00+08:00",
+  "title": {
+    "zh": "到底買幾個飯糰？",
+    "en": null
+  },
+  "short_sentence": {
+    "zh": "到底買幾個飯糰？",
+    "en": null
+  },
+  "summary": {
+    "zh": "出門前還去確認過買幾個飯糰！",
+    "en": null
+  },
+  "full_story": {
+    "zh": "",
+    "en": null
+  },
+  "attachments": [],
+  "data_version": 9,
+  "content_zh": ""
+}

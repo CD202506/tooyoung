@@ -1,0 +1,29 @@
+{
+    "id":  "2025-02-07T18-00-00-001",
+    "slug":  "repeatedly-asking-about-party-time",
+    "event_datetime":  "2025-02-07T18:00:00+08:00",
+    "title_zh":  "反覆詢問春酒什麼時候",
+    "short_sentence_zh":  "她剛問完電話內容，又立刻問一次春酒什麼時候。",
+    "summary_zh":  "患者重複發問，無法保留剛剛發生的對話內容，屬於短期記憶快速流失的表現。",
+    "full_story_zh":  "梅：剛剛問我跟誰在通電話？\n我：Colt梅i，他說要坐火車來喝春酒。\n梅：什麼時候喝春酒？\n我：……昨天晚上不是說過了？\n梅：我剛好在忙。\n我：昨天說的時候，你在看電視，也拿手機看 LINE。\n梅：喔，我忘了！",
+    "tags":  [
+                 "記憶缺失",
+                 "重複發問"
+             ],
+    "medical_interpretation":  {
+                                   "zh":  "短期記憶衰退，使患者無法形成或保留剛剛的事件紀錄。此狀況典型見於阿茲海默型失智早期。",
+                                   "en":  null
+                               },
+    "care_advice":  {
+                        "zh":  "避免責備或強調「我剛說過了」，改使用溫和回應，例如：「等一下我再跟你一起確認時間」。",
+                        "en":  null
+                    },
+    "related_cases":  [
+
+                      ],
+    "created_at":  "2025-02-07T18:00:00+08:00",
+    "updated_at":  "2025-02-07T18:00:00+08:00",
+    "photos":  [
+                   "/images/cases/repeatedly-asking-about-party-time/01.jpg"
+               ]
+}

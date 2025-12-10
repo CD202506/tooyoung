@@ -1,0 +1,36 @@
+{
+  "id": "2025-02-10T09-00-00-001",
+  "slug": "catalog-sent-confusion",
+  "event_datetime": "2025-02-10T09:00:00+08:00",
+  "title_zh": "型錄到底發了沒？",
+  "short_sentence_zh": "她反覆確認是否寄了型錄，但記憶完全對不起來。",
+  "summary_zh": "梅多次問我是否已寄型錄，儘管我在群組裡已說明並附上截圖，但她仍然重新問相同問題。這顯示短期記憶與工作記憶的混亂，以及無法更新資訊。",
+  "tags": [
+    "重複提問",
+    "工作記憶下降"
+  ],
+  "photos": [
+    "/images/cases/catalog-sent-confusion/02.jpg"
+  ],
+  "recorded_at": "2025-02-10T09:00:00+08:00",
+  "title": {
+    "zh": "型錄到底發了沒？",
+    "en": null
+  },
+  "short_sentence": {
+    "zh": "型錄到底發了沒？",
+    "en": null
+  },
+  "summary": {
+    "zh": "多次問我是否已寄型錄，儘管我在群組裡已說明並附上截圖，但她仍然重新問相同問題。這顯示短期記憶與工作記憶的混亂，以及無法更新資訊。",
+    "en": null
+  },
+  "full_story": {
+    "zh": "",
+    "en": null
+  },
+  "attachments": [],
+  "created_at": "2025-02-10T09:00:00+08:00",
+  "updated_at": "2025-12-07T09:19:57.085Z",
+  "data_version": 4
+}

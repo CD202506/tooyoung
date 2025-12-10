@@ -1,0 +1,37 @@
+{
+  "id": "2025-02-08T22-10-00-001",
+  "slug": "no-brushing-after-chocolate",
+  "event_datetime": "2025-02-08T22:10:00+08:00",
+  "title_zh": "吃完巧克力，只漱口，不刷牙",
+  "short_sentence_zh": "她忘記吃甜食後應刷牙，只用漱口替代。",
+  "summary_zh": "梅吃完巧克力後只漱口，我提醒她需要刷牙，但她完全不記得甜食會造成蛀牙，也無法理解為什麼需要刷牙。這顯示「程序性記憶」下降，以及欠缺因果關係判斷。",
+  "tags": [
+    "日常程序錯置",
+    "因果理解下降"
+  ],
+  "photos": [
+    "/images/cases/no-brushing-after-chocolate/02.jpg"
+  ],
+  "recorded_at": "2025-02-08T22:10:00+08:00",
+  "title": {
+    "zh": "吃完巧克力，只漱口，不刷牙",
+    "en": null
+  },
+  "short_sentence": {
+    "zh": "吃完巧克力，只漱口，不刷牙",
+    "en": null
+  },
+  "summary": {
+    "zh": "梅吃完巧克力後只漱口，我提醒她需要刷牙，但她完全不記得甜食會造成蛀牙，也無法理解為什麼需要刷牙。這顯示「程序性記憶」下降，以及欠缺因果關係判斷。",
+    "en": null
+  },
+  "full_story": {
+    "zh": "",
+    "en": null
+  },
+  "content_zh": "",
+  "attachments": [],
+  "created_at": "2025-02-08T22:10:00+08:00",
+  "updated_at": "2025-12-07T09:27:46.821Z",
+  "data_version": 2
+}

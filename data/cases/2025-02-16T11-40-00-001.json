@@ -1,0 +1,37 @@
+{
+  "id": "2025-02-16T11-40-00-001",
+  "slug": "what-time-is-it-clock-confusion",
+  "event_datetime": "2025-02-16T11:40:00+08:00",
+  "title_zh": "看著時鐘，問我現在幾點？",
+  "short_sentence_zh": "看著牆上的時鐘，卻分辨不出現在時間。",
+  "summary_zh": "梅看著牆上的時鐘，先後誤判「現在 10 點」、「12 點多」，最後仍無法理解時鐘指示的正確時間。我亮出手機報時，她才知道是 11:40，並以為家裡時鐘壞掉。此情況代表時間判讀能力不穩，屬於早期認知退化的典型跡象之一。",
+  "tags": [
+    "時間錯置",
+    "誤判時計",
+    "日常對話"
+  ],
+  "photos": [
+    "/images/cases/what-time-is-it-clock-confusion/01.jpg"
+  ],
+  "recorded_at": "2025-02-16T11:40:00+08:00",
+  "title": {
+    "zh": "房間漏水！",
+    "en": null
+  },
+  "short_sentence": {
+    "zh": "房間漏水！",
+    "en": null
+  },
+  "summary": {
+    "zh": "半夜，突然驚醒，堅持房間天花板漏水，就算開了燈，她還是堅持在漏水！",
+    "en": null
+  },
+  "full_story": {
+    "zh": "",
+    "en": null
+  },
+  "attachments": [],
+  "created_at": "2025-02-16T11:40:00+08:00",
+  "updated_at": "2025-12-07T08:59:28.325Z",
+  "data_version": 1
+}

@@ -1,0 +1,37 @@
+{
+  "id": "2025-02-22T11-30-00-001",
+  "slug": "tomb-sweeping-items-check",
+  "event_datetime": "2025-02-22T11:30:00+08:00",
+  "title_zh": "掃墓的東西，準備好了嗎？",
+  "short_sentence_zh": "她重複確認相同問題，彷彿第一次聽到。",
+  "summary_zh": "梅詢問掃墓是否就緒，雖然我已經說明三月才回家，並且不會在當週去掃墓，但她仍反覆問相同問題。當我再次重申行程後，她又過幾分鐘再度提起同樣的話題。這反映短期記憶留存度下降，並且無法整合前一次對話內容。",
+  "tags": [
+    "重複提問",
+    "短期記憶",
+    "情境混淆"
+  ],
+  "photos": [
+    "/images/cases/tomb-sweeping-items-check/01.jpg"
+  ],
+  "recorded_at": "2025-02-22T11:30:00+08:00",
+  "title": {
+    "zh": "忘了3000元是做什麼的？",
+    "en": null
+  },
+  "short_sentence": {
+    "zh": "忘了3000元是做什麼的？",
+    "en": null
+  },
+  "summary": {
+    "zh": "人家拿了每個月例行的買菜錢給她，她忘了這筆錢要做什麼？",
+    "en": null
+  },
+  "full_story": {
+    "zh": "",
+    "en": null
+  },
+  "attachments": [],
+  "created_at": "2025-02-22T11:30:00+08:00",
+  "updated_at": "2025-12-07T08:41:11.596Z",
+  "data_version": 2
+}

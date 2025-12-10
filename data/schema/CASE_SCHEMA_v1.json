@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/CASE_SCHEMA_v1.json",
+  "title": "Case Schema v1",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "ISO datetime + sequence" },
+    "event_datetime": { "type": "string", "format": "date-time" },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "slug": { "type": "string", "description": "english slug" },
+
+    "title": {
+      "type": "object",
+      "properties": {
+        "zh": { "type": "string" },
+        "en": { "type": ["string", "null"] }
+      },
+      "required": ["zh", "en"],
+      "additionalProperties": false
+    },
+    "short_sentence": {
+      "type": "object",
+      "properties": {
+        "zh": { "type": "string" },
+        "en": { "type": ["string", "null"] }
+      },
+      "required": ["zh", "en"],
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "zh": { "type": "string" },
+        "en": { "type": ["string", "null"] }
+      },
+      "required": ["zh", "en"],
+      "additionalProperties": false
+    },
+    "full_story": {
+      "type": "object",
+      "properties": {
+        "zh": { "type": "string" },
+        "en": { "type": ["string", "null"] }
+      },
+      "required": ["zh", "en"],
+      "additionalProperties": false
+    },
+
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "clinical_links": {
+      "type": "object",
+      "properties": {
+        "mmse": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "moca": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "cdr_stage": { "type": ["number", "null"] },
+        "ad8_flags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["mmse", "moca", "cdr_stage", "ad8_flags"],
+      "additionalProperties": false
+    },
+
+    "medical_interpretation": {
+      "type": "object",
+      "properties": {
+        "zh": { "type": ["string", "null"] },
+        "en": { "type": ["string", "null"] }
+      },
+      "required": ["zh", "en"],
+      "additionalProperties": false
+    },
+
+    "care_advice": {
+      "type": "object",
+      "properties": {
+        "zh": { "type": ["string", "null"] },
+        "en": { "type": ["string", "null"] }
+      },
+      "required": ["zh", "en"],
+      "additionalProperties": false
+    },
+
+    "related_cases": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "data_version": { "type": "number" }
+  },
+  "required": [
+    "id",
+    "event_datetime",
+    "recorded_at",
+    "slug",
+    "title",
+    "short_sentence",
+    "summary",
+    "full_story",
+    "tags",
+    "clinical_links",
+    "medical_interpretation",
+    "care_advice",
+    "related_cases",
+    "created_at",
+    "updated_at",
+    "data_version"
+  ],
+  "additionalProperties": false
+}

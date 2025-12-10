@@ -4,24 +4,34 @@ import type Database from "better-sqlite3";
 
 function ensureCaseProfilesTable(db: Database) {
   const now = new Date().toISOString();
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS case_profiles (
-      id INTEGER PRIMARY KEY,
-      display_name TEXT NOT NULL,
-      nickname TEXT,
-      preferred_language TEXT,
-      real_name TEXT,
-      birth_year INTEGER,
-      gender TEXT,
-      privacy_level TEXT NOT NULL DEFAULT 'private',
-      share_mode TEXT NOT NULL DEFAULT 'private',
-      share_token TEXT,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    );
+  const tableExists = db
+    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='case_profiles'")
+    .get();
 
-    CREATE INDEX IF NOT EXISTS idx_case_profiles_token ON case_profiles(share_token);
-  `);
+  if (!tableExists) {
+    db.exec(`
+      CREATE TABLE case_profiles (
+        id INTEGER PRIMARY KEY,
+        display_name TEXT,
+        nickname TEXT,
+        preferred_language TEXT DEFAULT 'zh',
+        real_name TEXT,
+        birth_year INTEGER,
+        gender TEXT,
+        privacy_level TEXT NOT NULL DEFAULT 'private',
+        privacy_mode TEXT NOT NULL DEFAULT 'private',
+        share_mode TEXT DEFAULT 'private',
+        share_token TEXT,
+        created_at TEXT,
+        updated_at TEXT
+      );
+      CREATE INDEX IF NOT EXISTS idx_case_profiles_token ON case_profiles(share_token);
+    `);
+  } else {
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_case_profiles_token ON case_profiles(share_token);
+    `);
+  }
 
   const columns = db
     .prepare("PRAGMA table_info(case_profiles)")
@@ -40,9 +50,14 @@ function ensureCaseProfilesTable(db: Database) {
   if (!names.has("share_token")) {
     db.prepare("ALTER TABLE case_profiles ADD COLUMN share_token TEXT").run();
   }
+  if (!names.has("privacy_mode")) {
+    db.prepare("ALTER TABLE case_profiles ADD COLUMN privacy_mode TEXT NOT NULL DEFAULT 'private'").run();
+  }
 
-  const row = db.prepare("SELECT COUNT(*) as count FROM case_profiles").get() as { count: number };
-  if (row.count === 0) {
+  const hasDefaultProfile = db
+    .prepare("SELECT 1 FROM case_profiles WHERE id = 1")
+    .get() as { 1: number } | undefined;
+  if (!hasDefaultProfile) {
     db.prepare(
       `
       INSERT INTO case_profiles (
@@ -55,6 +70,7 @@ function ensureCaseProfilesTable(db: Database) {
         gender,
         share_mode,
         privacy_level,
+        privacy_mode,
         share_token,
         created_at,
         updated_at
@@ -66,6 +82,7 @@ function ensureCaseProfilesTable(db: Database) {
         NULL,
         NULL,
         NULL,
+        'private',
         'private',
         'private',
         NULL,
@@ -92,6 +109,32 @@ function ensureCasesTableCaseId(db: Database) {
     .get();
   if (!hasCaseId) {
     db.prepare("ALTER TABLE cases_index ADD COLUMN case_id INTEGER DEFAULT 1").run();
+  }
+}
+
+function ensureCasesIndexColumns(db: Database) {
+  const columns = db
+    .prepare("PRAGMA table_info('cases_index')")
+    .all() as { name: string }[];
+  const names = new Set(columns.map((c) => c.name));
+
+  if (!names.has("case_id")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN case_id INTEGER DEFAULT 1").run();
+  }
+  if (!names.has("images")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN images TEXT").run();
+  }
+  if (!names.has("tags")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN tags TEXT").run();
+  }
+  if (!names.has("symptom_categories")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN symptom_categories TEXT DEFAULT '[]'").run();
+  }
+  if (!names.has("share_mode")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN share_mode TEXT DEFAULT 'private'").run();
+  }
+  if (!names.has("share_token")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN share_token TEXT").run();
   }
 }
 
@@ -123,6 +166,7 @@ export function applyMigrations() {
 
     ensureCaseProfilesTable(db);
     ensureCasesTableCaseId(db);
+    ensureCasesIndexColumns(db);
   } finally {
     db.close();
   }

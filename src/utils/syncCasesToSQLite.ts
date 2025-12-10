@@ -47,6 +47,7 @@ export function syncCasesToSQLite() {
   }
 
   const db = new Database(dbPath);
+  const addedColumns: string[] = [];
 
   const hasVisibilityColumn = db
     .prepare(
@@ -77,6 +78,7 @@ export function syncCasesToSQLite() {
     db.prepare(
       "ALTER TABLE cases_index ADD COLUMN symptom_categories TEXT",
     ).run();
+    addedColumns.push("symptom_categories");
   }
   const hasCaseIdColumn = db
     .prepare(
@@ -87,6 +89,37 @@ export function syncCasesToSQLite() {
     db.prepare(
       "ALTER TABLE cases_index ADD COLUMN case_id INTEGER DEFAULT 1",
     ).run();
+    addedColumns.push("case_id");
+  }
+  const hasImagesColumn = db
+    .prepare(
+      "SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'images'",
+    )
+    .get();
+  if (!hasImagesColumn) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN images TEXT").run();
+    addedColumns.push("images");
+  }
+  const hasTagsColumn = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'tags'")
+    .get();
+  if (!hasTagsColumn) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN tags TEXT").run();
+    addedColumns.push("tags");
+  }
+  const hasShareModeColumn = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'share_mode'")
+    .get();
+  if (!hasShareModeColumn) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN share_mode TEXT DEFAULT 'private'").run();
+    addedColumns.push("share_mode");
+  }
+  const hasShareTokenColumn = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'share_token'")
+    .get();
+  if (!hasShareTokenColumn) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN share_token TEXT").run();
+    addedColumns.push("share_token");
   }
 
   const upsertCaseStmt = db.prepare(`
@@ -101,6 +134,10 @@ export function syncCasesToSQLite() {
       content_zh,
       public_excerpt_zh,
       symptom_categories,
+      images,
+      tags,
+      share_mode,
+      share_token,
       visibility,
       created_at,
       updated_at
@@ -115,6 +152,10 @@ export function syncCasesToSQLite() {
       @content_zh,
       @public_excerpt_zh,
       @symptom_categories,
+      @images,
+      @tags,
+      @share_mode,
+      @share_token,
       @visibility,
       @created_at,
       @updated_at
@@ -128,6 +169,10 @@ export function syncCasesToSQLite() {
       content_zh = excluded.content_zh,
       public_excerpt_zh = excluded.public_excerpt_zh,
       symptom_categories = excluded.symptom_categories,
+      images = excluded.images,
+      tags = excluded.tags,
+      share_mode = excluded.share_mode,
+      share_token = excluded.share_token,
       visibility = excluded.visibility,
       case_id = excluded.case_id,
       updated_at = excluded.updated_at
@@ -210,11 +255,31 @@ export function syncCasesToSQLite() {
               "";
 
         const tags = Array.isArray(parsed.tags) ? parsed.tags : [];
+        const images = Array.isArray(parsed.photos)
+          ? parsed.photos
+              .map((p) => {
+                if (typeof p === "string") return p;
+                if (p && typeof p === "object") {
+                  const file = (p as { file?: string }).file;
+                  if (typeof file === "string") return file;
+                }
+                return null;
+              })
+              .filter((p): p is string => typeof p === "string")
+          : [];
         const visibility = parsed.visibility || "private";
         const public_excerpt_zh = parsed.public_excerpt_zh ?? null;
         const symptom_categories = Array.isArray(parsed.symptom_categories)
           ? parsed.symptom_categories
           : [];
+        const share_mode =
+          parsed && typeof parsed === "object" && "share_mode" in parsed
+            ? ((parsed as { share_mode?: string }).share_mode as string | undefined) ?? "private"
+            : "private";
+        const share_token =
+          parsed && typeof parsed === "object" && "share_token" in parsed
+            ? ((parsed as { share_token?: string | null }).share_token ?? null)
+            : null;
 
         const record = {
           id,
@@ -227,6 +292,10 @@ export function syncCasesToSQLite() {
           content_zh: content,
           public_excerpt_zh,
           symptom_categories: JSON.stringify(symptom_categories),
+          images: JSON.stringify(images),
+          tags: JSON.stringify(tags),
+          share_mode,
+          share_token,
           created_at: nowIso(),
           updated_at: nowIso(),
           visibility,
@@ -258,7 +327,11 @@ export function syncCasesToSQLite() {
   transaction();
   db.close();
 
-  console.log("Sync completed.");
+  if (addedColumns.length > 0) {
+    console.log(`Sync completed. Added columns: ${addedColumns.join(", ")}`);
+  } else {
+    console.log("Sync completed. No new columns added.");
+  }
 }
 
 syncCasesToSQLite();

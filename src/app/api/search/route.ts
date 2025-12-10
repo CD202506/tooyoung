@@ -14,6 +14,13 @@ export async function GET(req: Request) {
     const Database = require("better-sqlite3");
     const db = new Database("db/tooyoung.db");
 
+    const hasCaseId = db
+      .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'case_id'")
+      .get();
+    if (!hasCaseId) {
+      db.prepare("ALTER TABLE cases_index ADD COLUMN case_id INTEGER DEFAULT 1").run();
+    }
+
     const matchedIds = db
       .prepare(
         `
@@ -39,6 +46,7 @@ export async function GET(req: Request) {
         SELECT
           id,
           slug,
+          case_id,
           title_zh,
           short_sentence_zh,
           summary_zh
@@ -49,6 +57,7 @@ export async function GET(req: Request) {
       .all(...ids) as {
       id: string;
       slug: string;
+      case_id: number | null;
       title_zh: string | null;
       short_sentence_zh: string | null;
       summary_zh: string | null;

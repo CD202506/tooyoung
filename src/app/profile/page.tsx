@@ -1,233 +1,109 @@
-"use client";
+import path from "node:path";
+import fs from "node:fs";
+import Database from "better-sqlite3";
+import { ProfileDashboard, DashboardProfile, DashboardEvent } from "@/components/ProfileDashboard";
+import { CaseRecord } from "@/types/case";
+import { normalizeCase } from "@/lib/normalizeCase";
 
-import { useEffect, useState } from "react";
-import { ProfileForm } from "@/components/profile/ProfileForm";
-import { CaseProfile } from "@/types/profile";
-import { normalizeProfile } from "@/lib/normalizeProfile";
+function loadProfile(): DashboardProfile {
+  const dbPath = path.join(process.cwd(), "db", "tooyoung.db");
+  const db = new Database(dbPath);
+  try {
+    const row = db
+      .prepare("SELECT display_name, nickname FROM case_profiles WHERE id = 1")
+      .get() as { display_name?: string | null; nickname?: string | null } | undefined;
+    return {
+      display_name: row?.display_name ?? null,
+      nickname: row?.nickname ?? null,
+    };
+  } catch {
+    return { display_name: "個案 1" };
+  } finally {
+    db.close();
+  }
+}
 
-export default function ProfilePage() {
-  const [profile, setProfile] = useState<CaseProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string>("");
-  const [shareMode, setShareMode] = useState<"private" | "protected" | "public">("private");
-  const [shareToken, setShareToken] = useState<string | null>(null);
-  const [shareMessage, setShareMessage] = useState<string>("");
-  const [shareLoading, setShareLoading] = useState(false);
-  const [latestSlug, setLatestSlug] = useState<string | null>(null);
+function loadEvents(): DashboardEvent[] {
+  const dbPath = path.join(process.cwd(), "db", "tooyoung.db");
+  const db = new Database(dbPath);
+  try {
+    const rows = db
+      .prepare(
+        `
+        SELECT id, slug, event_datetime, title_zh, summary_zh, symptom_categories
+        FROM cases_index
+        ORDER BY event_datetime DESC
+      `,
+      )
+      .all() as Array<{
+        id: string;
+        slug: string;
+        event_datetime: string | null;
+        title_zh: string | null;
+        summary_zh: string | null;
+        symptom_categories?: string | null;
+      }>;
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/api/profile");
-        const json = await res.json();
-        if (json?.ok && json.profile) {
-          setProfile(json.profile as CaseProfile);
-          setShareMode((json.profile.share_mode as typeof shareMode) ?? "private");
-          setShareToken((json.profile.share_token as string | null) ?? null);
-        } else {
-          throw new Error(json?.error || "load failed");
+    return rows.map((row) => {
+      const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
+      let merged: CaseRecord = {
+        id: row.id,
+        slug: row.slug,
+        event_datetime: row.event_datetime ?? undefined,
+        title_zh: row.title_zh ?? undefined,
+        summary_zh: row.summary_zh ?? undefined,
+      };
+      if (fs.existsSync(casePath)) {
+        try {
+          const raw = fs.readFileSync(casePath, "utf-8");
+          const json = JSON.parse(raw) as CaseRecord;
+          merged = { ...merged, ...json };
+        } catch (error) {
+          console.warn("failed to read case file", row.id, error);
         }
-      } catch (err) {
-        console.error(err);
-        setMessage("載入失敗");
-      } finally {
-        setLoading(false);
       }
-    };
-    load();
-
-    const loadLatestSlug = async () => {
-      try {
-        const res = await fetch("/api/latest", { cache: "no-store" });
-        if (!res.ok) return;
-        const json = await res.json();
-        const slug = json?.cases?.[0]?.slug as string | undefined;
-        if (slug) setLatestSlug(slug);
-      } catch (err) {
-        console.warn("load latest slug failed", err);
+      const normalized = normalizeCase(merged);
+      let symptom_categories: string[] = [];
+      if (Array.isArray(normalized.symptom_categories)) {
+        symptom_categories = normalized.symptom_categories;
+      } else if (row.symptom_categories) {
+        try {
+          const parsed = JSON.parse(row.symptom_categories) as unknown;
+          if (Array.isArray(parsed)) {
+            symptom_categories = parsed.filter((v): v is string => typeof v === "string");
+          }
+        } catch (error) {
+          console.warn("parse symptom_categories failed", error);
+        }
       }
-    };
-    loadLatestSlug();
-  }, []);
 
-  const handleSubmit = async (updated: CaseProfile) => {
-    setSaving(true);
-    setMessage("");
-    try {
-      const res = await fetch("/api/profile/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
-      });
-      const json = await res.json();
-      if (!res.ok || !json?.ok) {
-        throw new Error(json?.error || "更新失敗");
-      }
-      const normalized = normalizeProfile(json.profile as Partial<CaseProfile>);
-      setProfile(normalized);
-      setMessage("Profile 已更新");
-    } catch (err) {
-      console.error(err);
-      setMessage("儲存時發生錯誤");
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  };
+      return {
+        slug: normalized.slug,
+        event_datetime: normalized.event_datetime ?? null,
+        title:
+          typeof normalized.title === "string"
+            ? normalized.title
+            : normalized.title?.zh ?? normalized.title?.en ?? normalized.title_zh,
+        summary:
+          typeof normalized.summary === "string"
+            ? normalized.summary
+            : normalized.summary?.zh ?? normalized.summary?.en ?? normalized.summary_zh,
+        symptom_categories,
+      };
+    });
+  } finally {
+    db.close();
+  }
+}
 
-  const handleShareUpdate = async (
-    mode: "private" | "protected" | "public",
-    regenerate = false,
-  ) => {
-    setShareLoading(true);
-    setShareMessage("");
-    try {
-      const res = await fetch("/api/profile/share", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ share_mode: mode, regenerate_token: regenerate }),
-      });
-      const json = await res.json();
-      if (!res.ok || json?.error) {
-        throw new Error(json?.error || "update failed");
-      }
-      setShareMode(mode);
-      setShareToken(mode === "protected" ? (json.share_token as string | null) ?? null : null);
-      setShareMessage("分享設定已更新");
-    } catch (err) {
-      console.error(err);
-      setShareMessage("更新分享設定失敗");
-    } finally {
-      setShareLoading(false);
-    }
-  };
-
-  const shareLink = (() => {
-    const base =
-      (typeof window !== "undefined" && window.location?.origin) ||
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      "http://localhost:3000";
-    const slug = latestSlug || "{slug}";
-    if (shareMode === "protected") {
-      const token = shareToken || "{token}";
-      return `${base}/share/${slug}?token=${token}`;
-    }
-    if (shareMode === "public") {
-      return `${base}/share/${slug}`;
-    }
-    return null;
-  })();
+export default async function ProfilePage() {
+  const profile = loadProfile();
+  const events = loadEvents();
 
   return (
-    <main className="min-h-screen bg-neutral-950 px-4 py-6 text-neutral-50">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold">個案設定</h1>
-          <p className="text-sm text-neutral-400">管理個案主檔，回診前快速更新資訊</p>
-          {message && (
-            <div className="mt-2 rounded-md border border-neutral-800 bg-neutral-900/70 px-3 py-2 text-sm text-neutral-100">
-              {message}
-            </div>
-          )}
-        </header>
-
-        {loading && <div className="text-sm text-neutral-400">載入中…</div>}
-        {!loading && profile && (
-          <>
-            <ProfileForm profile={profile} loading={saving} onSubmit={handleSubmit} />
-
-            <section className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-900/70 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold text-neutral-50">分享設定</h2>
-                  <p className="text-sm text-neutral-400">
-                    控制此個案的事件是否可以透過連結分享。
-                  </p>
-                </div>
-                {shareMessage && (
-                  <div className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-xs text-neutral-100">
-                    {shareMessage}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3 text-sm text-neutral-200">
-                {[
-                  { label: "私密（不分享）", value: "private" as const },
-                  { label: "受保護連結（需要安全連結）", value: "protected" as const },
-                  { label: "公開閱讀（任何人都可查看）", value: "public" as const },
-                ].map((opt) => (
-                  <label key={opt.value} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="share_mode"
-                      value={opt.value}
-                      checked={shareMode === opt.value}
-                      onChange={() => handleShareUpdate(opt.value)}
-                      disabled={shareLoading}
-                      className="h-4 w-4"
-                    />
-                    <span>{opt.label}</span>
-                  </label>
-                ))}
-              </div>
-
-              {shareMode === "private" && (
-                <div className="text-sm text-neutral-400">此個案不開放對外分享。</div>
-              )}
-
-              {shareMode === "protected" && (
-                <div className="space-y-3">
-                  <div className="text-sm text-neutral-300">受保護分享連結：</div>
-                  <div className="rounded-md border border-neutral-800 bg-neutral-950/60 px-3 py-2 text-xs text-neutral-100">
-                    {shareLink || "尚未產生分享連結"}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (shareLink) {
-                          void navigator.clipboard.writeText(shareLink);
-                          setShareMessage("已複製分享連結");
-                        }
-                      }}
-                      disabled={!shareLink || shareLoading}
-                      className="rounded-md bg-gray-800 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-700 disabled:opacity-60"
-                    >
-                      複製連結
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleShareUpdate("protected", true)}
-                      disabled={shareLoading}
-                      className="rounded-md bg-gray-700 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-600 disabled:opacity-60"
-                    >
-                      重新產生安全連結
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {shareMode === "public" && (
-                <div className="space-y-2 text-sm text-neutral-300">
-                  <div>
-                    所有公開案例頁面可透過 /share/
-                    {latestSlug || "{slug}"} 存取（不需 token）。
-                  </div>
-                  {shareLink && (
-                    <div className="rounded-md border border-neutral-800 bg-neutral-950/60 px-3 py-2 text-xs text-neutral-100">
-                      {shareLink}
-                    </div>
-                  )}
-                  <div className="text-xs text-amber-200">
-                    請再次確認內容沒有包含真實姓名或醫院名稱。
-                  </div>
-                </div>
-              )}
-            </section>
-          </>
-        )}
+    <main className="min-h-screen bg-neutral-50 text-neutral-900">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 lg:px-8">
+        <ProfileDashboard profile={profile} events={events} />
       </div>
     </main>
   );

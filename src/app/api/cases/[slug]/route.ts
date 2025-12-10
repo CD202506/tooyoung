@@ -102,6 +102,10 @@ export async function GET(
     normalizeCase({
       ...(json as CaseRecord),
       visibility: (json as CaseRecord).visibility ?? (row as any).visibility,
+      case_id: (row as any).case_id ?? (json as CaseRecord).case_id ?? 1,
+      share_mode: (row as any).share_mode ?? (json as CaseRecord).share_mode ?? "private",
+      share_token:
+        (row as any).share_token ?? (json as CaseRecord).share_token ?? null,
     }),
     { status: 200 },
   );

@@ -24,6 +24,8 @@ export type CaseRecord = {
   id?: string;
   slug?: string;
   case_id?: number;
+  share_mode?: "private" | "public" | "token";
+  share_token?: string | null;
   event_datetime?: string;
   recorded_at?: string;
 
@@ -60,3 +62,17 @@ export type CaseRecord = {
   allow_photos_public?: boolean;
   anonymization_level?: AnonymizationLevel;
 };
+
+export interface Case {
+  id: number;
+  slug: string;
+  case_id: number;
+  title: string;
+  event_datetime: string;
+  content: string;
+  images: string[];
+  tags: string[];
+  symptom_categories: string[];
+  share_mode: "private" | "public" | "token";
+  share_token?: string | null;
+}

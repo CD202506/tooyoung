@@ -32,6 +32,27 @@ async function main() {
   }
 
   try {
+    const columns = db
+      .prepare("PRAGMA table_info('case_profiles')")
+      .all() as Array<{ name: string }>;
+    const names = new Set(columns.map((c) => c.name));
+    const required = [
+      "id",
+      "display_name",
+      "nickname",
+      "preferred_language",
+      "share_mode",
+      "share_token",
+      "created_at",
+      "updated_at",
+    ];
+    const missing = required.filter((c) => !names.has(c));
+    console.log(missing.length === 0 ? "OK case_profiles columns present" : `FAIL case_profiles missing columns: ${missing.join(", ")}`);
+  } catch {
+    console.log("FAIL case_profiles missing columns check failed");
+  }
+
+  try {
     const row = db
       .prepare("SELECT COUNT(*) as count FROM case_profiles WHERE id = 1")
       .get() as { count: number };
@@ -47,6 +68,50 @@ async function main() {
     console.log(hasCaseId ? "OK cases_index.case_id present" : "FAIL cases_index.case_id missing");
   } catch {
     console.log("FAIL cases_index.case_id missing");
+  }
+
+  try {
+    const columns = db
+      .prepare("PRAGMA table_info('cases_index')")
+      .all() as Array<{ name: string }>;
+    const names = new Set(columns.map((c) => c.name));
+    const required = ["case_id", "tags", "images", "symptom_categories", "share_mode", "share_token"];
+    const missing = required.filter((c) => !names.has(c));
+    console.log(missing.length === 0 ? "OK cases_index columns present" : `FAIL cases_index missing columns: ${missing.join(", ")}`);
+  } catch {
+    console.log("FAIL cases_index columns check failed");
+  }
+
+  try {
+    const rows = db
+      .prepare(
+        "SELECT id, case_id, share_mode, symptom_categories FROM cases_index",
+      )
+      .all() as Array<{ id: string; case_id: number | null; share_mode?: string | null; symptom_categories?: string | null }>;
+
+    const validModes = new Set(["private", "public", "token", "protected"]);
+    let caseIdMissing = false;
+    let modeInvalid = false;
+    let symptomInvalid = false;
+
+    for (const row of rows) {
+      if (row.case_id === null || row.case_id === undefined) caseIdMissing = true;
+      if (row.share_mode && !validModes.has(row.share_mode)) modeInvalid = true;
+      if (row.symptom_categories) {
+        try {
+          const parsed = JSON.parse(row.symptom_categories);
+          if (!Array.isArray(parsed)) symptomInvalid = true;
+        } catch {
+          symptomInvalid = true;
+        }
+      }
+    }
+
+    console.log(caseIdMissing ? "FAIL Some cases missing case_id" : "OK cases have case_id");
+    console.log(modeInvalid ? "FAIL Invalid share_mode values" : "OK share_mode values valid");
+    console.log(symptomInvalid ? "FAIL symptom_categories not JSON array" : "OK symptom_categories valid JSON array");
+  } catch {
+    console.log("FAIL cases row validation failed");
   }
 
   try {
@@ -105,11 +170,15 @@ async function main() {
   console.log("\n[API Test]");
 
   // Generic API test helper
-  async function test(name: string, url: string) {
+  async function test(name: string, url: string, expectedStatus: number | null = 200) {
     try {
       const res = await fetch(url);
-      if (!res.ok) {
-        console.log(`FAIL GET (failed) ${name} status ${res.status}`);
+      if (expectedStatus !== null) {
+        if (res.status === expectedStatus) {
+          console.log(`OK GET ${name} (status ${res.status})`);
+        } else {
+          console.log(`FAIL GET ${name} expected ${expectedStatus} got ${res.status}`);
+        }
       } else {
         console.log(`OK GET ${name}`);
       }
@@ -122,6 +191,29 @@ async function main() {
   await test("/api/latest", "http://localhost:3000/api/latest");
   await test("/api/search", "http://localhost:3000/api/search?q=test");
   await test("/api/tags/[tag]", "http://localhost:3000/api/tags/orientation");
+
+  try {
+    const sampleShare = db
+      .prepare("SELECT slug, share_mode, share_token FROM cases_index LIMIT 1")
+      .get() as { slug: string; share_mode?: string | null; share_token?: string | null } | undefined;
+    if (sampleShare?.slug) {
+      const mode = sampleShare.share_mode ?? "private";
+      const slug = sampleShare.slug;
+      if (mode === "private") {
+        await test("/api/share/[slug] (private expects 403)", `http://localhost:3000/api/share/${slug}`, 403);
+      } else if (mode === "token" || mode === "protected") {
+        await test("/api/share/[slug] token missing", `http://localhost:3000/api/share/${slug}`, 403);
+        const token = sampleShare.share_token ?? "invalid";
+        await test("/api/share/[slug]?token=XYZ", `http://localhost:3000/api/share/${slug}?token=${token}`, 200);
+      } else {
+        await test("/api/share/[slug] public", `http://localhost:3000/api/share/${slug}`, 200);
+      }
+    } else {
+      console.log("FAIL No slug found for share API test");
+    }
+  } catch {
+    console.log("FAIL share API test setup failed");
+  }
 
   console.log("\n[Dynamic Slug Test]");
 

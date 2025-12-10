@@ -23,16 +23,16 @@ export function CaseCard({
   return (
     <Link
       href={`/cases/${slug}`}
-      className="block w-full rounded-xl border border-secondary/30 bg-background p-5 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+      className="mb-4 block w-full rounded-xl border border-secondary/30 bg-background p-5 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
     >
       <div className="text-xs text-text/50">{dateLabel}</div>
-      <h2 className="mt-2 text-lg font-semibold text-text">
+      <h2 className="mt-3 text-lg font-semibold text-text">
         {title_zh}
       </h2>
-      <p className="mt-1 text-base text-text">
+      <p className="mt-2 text-base leading-relaxed text-text">
         {short_sentence_zh}
       </p>
-      <p className="mt-3 text-sm text-text/70">
+      <p className="mt-3 text-sm leading-relaxed text-text/70">
         {summary_zh}
       </p>
       <div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 transition hover:text-indigo-700">

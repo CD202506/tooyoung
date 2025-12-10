@@ -1,72 +1,93 @@
+import path from "node:path";
+import fs from "node:fs";
 import Database from "better-sqlite3";
-import { TimelineClient, TimelineEvent } from "./TimelineClient";
+import { TimelinePage, TimelineEvent } from "@/components/TimelinePage";
+import { CaseRecord } from "@/types/case";
 import { normalizeCase } from "@/lib/normalizeCase";
 
-function loadEvents(): TimelineEvent[] {
-  const db = new Database("db/tooyoung.db");
-  const rows = db
-    .prepare(
-      `
-      SELECT
-        id,
-        slug,
-        event_datetime,
-      title_zh,
-      summary_zh,
-      short_sentence_zh,
-      visibility,
-      tags
-    FROM cases_index
-    LEFT JOIN tags_index ti ON cases_index.id = ti.case_id
-    WHERE event_datetime IS NOT NULL
-    ORDER BY event_datetime DESC
-    `,
-    )
-    .all() as {
-      id: string;
-      slug: string;
-      event_datetime: string;
-      title_zh: string | null;
-      summary_zh: string | null;
-      short_sentence_zh: string | null;
-      visibility?: string | null;
-      tags?: string | null;
-    }[];
+function loadEvents(caseId: number): TimelineEvent[] {
+  const dbPath = path.join(process.cwd(), "db", "tooyoung.db");
+  const db = new Database(dbPath);
+  try {
+    const rows = db
+      .prepare(
+        `
+        SELECT id, slug, event_datetime, title_zh, summary_zh, symptom_categories
+        FROM cases_index
+        WHERE case_id = @caseId
+        ORDER BY event_datetime DESC
+      `,
+      )
+      .all({ caseId }) as Array<{
+        id: string;
+        slug: string;
+        event_datetime: string | null;
+        title_zh: string | null;
+        summary_zh: string | null;
+        symptom_categories?: string | null;
+      }>;
 
-  db.close();
+    return rows.map((row) => {
+      const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
+      let merged: CaseRecord = {
+        id: row.id,
+        slug: row.slug,
+        event_datetime: row.event_datetime ?? undefined,
+        title_zh: row.title_zh ?? undefined,
+        summary_zh: row.summary_zh ?? undefined,
+      };
+      if (fs.existsSync(casePath)) {
+        try {
+          const raw = fs.readFileSync(casePath, "utf-8");
+          const json = JSON.parse(raw) as CaseRecord;
+          merged = { ...merged, ...json };
+        } catch (error) {
+          console.warn("failed to read case file", row.id, error);
+        }
+      }
+      const normalized = normalizeCase(merged);
+      let symptom_categories: string[] = [];
+      if (Array.isArray(normalized.symptom_categories)) {
+        symptom_categories = normalized.symptom_categories;
+      } else if (row.symptom_categories) {
+        try {
+          const parsed = JSON.parse(row.symptom_categories) as unknown;
+          if (Array.isArray(parsed)) {
+            symptom_categories = parsed.filter((v): v is string => typeof v === "string");
+          }
+        } catch (error) {
+          console.warn("parse symptom_categories failed", error);
+        }
+      }
 
-  return rows.map((row) => {
-    const normalized = normalizeCase({
-      ...row,
-      summary_zh: row.summary_zh ?? row.short_sentence_zh ?? "",
-      title_zh: row.title_zh ?? "",
-      tags: row.tags ? row.tags.split(",") : undefined,
+      return {
+        slug: normalized.slug,
+        event_datetime: normalized.event_datetime ?? null,
+        title:
+          typeof normalized.title === "string"
+            ? normalized.title
+            : normalized.title?.zh ?? normalized.title?.en ?? normalized.title_zh,
+        summary:
+          typeof normalized.summary === "string"
+            ? normalized.summary
+            : normalized.summary?.zh ?? normalized.summary?.en ?? normalized.summary_zh,
+        symptom_categories,
+      } satisfies TimelineEvent;
     });
-    return {
-      id: normalized.id || row.id,
-      slug: normalized.slug || row.slug,
-      event_datetime: normalized.event_datetime || row.event_datetime,
-      title_zh: normalized.title_zh || "",
-      summary_zh: normalized.summary_zh || normalized.short_sentence_zh || "",
-      visibility: normalized.visibility,
-      tags: normalized.tags,
-    };
-  });
+  } finally {
+    db.close();
+  }
 }
 
-export default function TimelinePage() {
-  const events = loadEvents();
+export default async function Timeline() {
+  const caseId = 1; // 可改為從 searchParams 讀取，需求未指定
+  const events = loadEvents(caseId);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 text-neutral-50">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold leading-tight">事件時間軸</h1>
-        <p className="mt-2 text-sm text-neutral-300">
-          依日期排列的事件紀錄，可使用月份與分類（預留）進行篩選。
-        </p>
-      </header>
-
-      <TimelineClient events={events} />
+    <main className="min-h-screen bg-neutral-50 text-neutral-900">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 lg:px-8">
+        <TimelinePage events={events} />
+      </div>
     </main>
   );
 }

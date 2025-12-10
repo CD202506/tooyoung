@@ -22,6 +22,12 @@ export function normalizeCase(raw: CaseRecord): CaseRecord {
   return {
     ...raw,
     case_id: raw.case_id ?? 1,
+    share_mode:
+      raw.share_mode === "protected"
+        ? "token"
+        : raw.share_mode ?? "private",
+    share_token:
+      raw.share_token === undefined ? null : raw.share_token,
     module: raw.module ?? "dementia",
     visibility: normalizeVisibility(raw.visibility),
     allow_photos_public: raw.allow_photos_public ?? false,

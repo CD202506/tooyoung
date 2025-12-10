@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TooYoung｜時空迷航雜記
 
-## Getting Started
+「TooYoung」是一個針對 **年輕型失智症（Young-Onset Dementia）** 家屬照顧情境所設計的觀察紀錄工具。  
+它協助主要照顧者用「事件案例」的方式，記錄病程中的重要片段，並從時間軸、症狀類別與疾病階段三個角度整合，提供臨床溝通與家屬自我整理之用。
 
-First, run the development server:
+> ⚠️ 本專案目前為 **個人研究與照護工具 MVP**，尚未開放公開註冊或商業使用。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ 主要功能 Features
+
+- **事件紀錄（Cases）**
+  - 以「事件卡片」方式記錄生活中的關鍵情境與對話。
+  - 支援標題、事件時間、中文摘要、完整敘事與標籤（tags）。
+  - 逐步支援「症狀類別」、「疾病階段」等進階欄位。
+
+- **事件詳情與圖片**
+  - 個別事件頁顯示完整敘事。
+  - 圖片區塊支援 Lightbox 模式：點擊縮圖可全螢幕檢視並左右切換。
+
+- **時間軸視圖（Timeline）**
+  - 以年月分組顯示事件，呈現病程演變脈絡。
+  - 後續會支援依個案 / 症狀 / 標籤等條件篩選。
+
+- **臨床三軸分析頁（/clinical/map）**
+  - 左側：事件時間軸（Timeline）。
+  - 右上：症狀軌跡（Symptom Trajectory）。
+  - 右下：疾病階段預估（Disease Stage Projection，偵測早期/中期趨勢）。
+
+- **回診摘要（Summary & PDF）**
+  - /summary 介面統計最近 30 天事件數、時間分布、熱門標籤。
+  - 可匯出簡要 PDF，提供回診時給醫療團隊參考（MVP 版）。
+
+- **症狀分類（Symptom Categories）**
+  - 事件可勾選一個以上的症狀類別（例如記憶、時間定向、情緒、行為…）。
+  - Summary 與三軸分析會依此計算趨勢。
+
+- **個案主檔（Case Profiles，開發中）**
+  - 每一組觀察資料對應一個個案（case profile）。
+  - 支援顯示名稱、暱稱、基本背景資訊及分享權限設定。
+  - 未來可支援多個個案切換（例如家族中不同成員）。
+
+---
+
+## 🧩 技術架構 Tech Stack
+
+- **Frontend / Fullstack Framework**：Next.js 16（App Router, TypeScript）
+- **UI**：React, Tailwind CSS（深色主題）
+- **資料儲存**
+  - 事件內容：JSON 檔案（`/data/cases/*.json`）
+  - 索引 & 統計：SQLite（透過 Node 端工具與 API 存取）
+- **後端 API**
+  - Next.js Route Handlers（REST 風格 endpoints）
+  - 部分工具腳本在 Node 環境下執行（同步 JSON → SQLite）
+
+---
+
+## 📂 主要目錄結構（摘要）
+
+> 完整樹狀結構請見：[`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md)
+
+```text
+tooyoung/
+  ├─ data/
+  │   ├─ cases/              # 事件案例 JSON 檔
+  │   └─ case_template.json  # 新增事件的範本
+  ├─ src/
+  │   ├─ app/
+  │   │   ├─ cases/          # 事件列表 / 詳情 / 編輯 / 新增頁面
+  │   │   ├─ summary/        # 30 天摘要與 PDF 匯出
+  │   │   ├─ clinical/       # 三軸分析 /clinical/map
+  │   │   └─ api/            # API routes（cases, search, summary, pdf, tags...）
+  │   ├─ components/         # 共用 React 元件（CaseCard, CaseEditForm, Lightbox...）
+  │   ├─ lib/                # 商業邏輯與輔助函式（symptomCategories, normalizeCase 等）
+  │   ├─ types/              # TypeScript 型別定義（Case, CaseProfile 等）
+  │   └─ utils/              # JSON ↔ SQLite 同步、驗證工具等
+  ├─ scripts/                # 開發與部署腳本（dev / build / start）
+  ├─ docs/                   # 文件（結構說明、部署說明、流程建議）
+  └─ .github/workflows/      # CI / Release 自動化
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

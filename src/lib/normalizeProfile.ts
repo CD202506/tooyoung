@@ -15,6 +15,8 @@ export const DEFAULT_PROFILE: CaseProfile = {
     manual: null,
   },
   privacy_mode: "masked",
+  share_mode: "private",
+  share_token: null,
   caregivers: [],
   hospital_info: {
     name: null,
@@ -57,6 +59,8 @@ export function normalizeProfile(
       manual: stageManual,
     },
     privacy_mode: base.privacy_mode ?? DEFAULT_PROFILE.privacy_mode,
+    share_mode: base.share_mode ?? DEFAULT_PROFILE.share_mode,
+    share_token: base.share_token ?? DEFAULT_PROFILE.share_token,
     caregivers: Array.isArray(base.caregivers) ? base.caregivers : [],
     hospital_info: {
       name:

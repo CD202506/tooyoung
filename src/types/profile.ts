@@ -21,6 +21,8 @@ export interface CaseProfile {
     manual: "early" | "middle" | "late" | null;
   };
   privacy_mode: "public" | "masked" | "private";
+  share_mode?: "private" | "protected" | "public";
+  share_token?: string | null;
   caregivers: CaregiverInfo[];
   hospital_info: HospitalInfo;
   notes?: string;

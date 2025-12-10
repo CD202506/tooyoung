@@ -8,17 +8,38 @@ function ensureCaseProfilesTable(db: Database) {
     CREATE TABLE IF NOT EXISTS case_profiles (
       id INTEGER PRIMARY KEY,
       display_name TEXT NOT NULL,
+      nickname TEXT,
+      preferred_language TEXT,
       real_name TEXT,
       birth_year INTEGER,
       gender TEXT,
       privacy_level TEXT NOT NULL DEFAULT 'private',
-      share_token TEXT UNIQUE,
+      share_mode TEXT NOT NULL DEFAULT 'private',
+      share_token TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
 
     CREATE INDEX IF NOT EXISTS idx_case_profiles_token ON case_profiles(share_token);
   `);
+
+  const columns = db
+    .prepare("PRAGMA table_info(case_profiles)")
+    .all() as { name: string }[];
+  const names = new Set(columns.map((c) => c.name));
+
+  if (!names.has("nickname")) {
+    db.prepare("ALTER TABLE case_profiles ADD COLUMN nickname TEXT").run();
+  }
+  if (!names.has("preferred_language")) {
+    db.prepare("ALTER TABLE case_profiles ADD COLUMN preferred_language TEXT").run();
+  }
+  if (!names.has("share_mode")) {
+    db.prepare("ALTER TABLE case_profiles ADD COLUMN share_mode TEXT NOT NULL DEFAULT 'private'").run();
+  }
+  if (!names.has("share_token")) {
+    db.prepare("ALTER TABLE case_profiles ADD COLUMN share_token TEXT").run();
+  }
 
   const row = db.prepare("SELECT COUNT(*) as count FROM case_profiles").get() as { count: number };
   if (row.count === 0) {
@@ -27,19 +48,25 @@ function ensureCaseProfilesTable(db: Database) {
       INSERT INTO case_profiles (
         id,
         display_name,
+        nickname,
+        preferred_language,
         real_name,
         birth_year,
         gender,
+        share_mode,
         privacy_level,
         share_token,
         created_at,
         updated_at
       ) VALUES (
         1,
-        'M',
+        'Default Case',
+        'Default',
+        'zh',
         NULL,
         NULL,
         NULL,
+        'private',
         'private',
         NULL,
         @now,

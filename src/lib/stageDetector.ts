@@ -131,7 +131,7 @@ export function detectStage(
 ): StageDetectResult {
   const now = Date.now();
   const cutoff = now - 90 * DAY_MS;
-  let mmseTrendLabel: StageDetectResult["meta"]["mmse_trend"] | undefined;
+  let mmseTrendLabel: "stable_or_slow" | "mild_decline" | "rapid_decline" | undefined;
 
   if (scales && scales.length > 1) {
     const slope = computeMmseSlope(scales);

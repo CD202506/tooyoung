@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
 import fs from "node:fs";
 import Database from "better-sqlite3";
@@ -10,7 +10,7 @@ const DB_PATH = path.join(process.cwd(), "db", "tooyoung.db");
 function parseSymptomCategories(value: unknown): string[] {
   if (typeof value === "string") {
     try {
-      const parsed = JSON.parse(value) as unknown;
+      const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
         return parsed.filter((x): x is string => typeof x === "string");
       }
@@ -41,36 +41,54 @@ function normalizeImages(value: unknown): string[] {
   return [];
 }
 
-export async function GET(request: Request, context: { params: { slug: string } }) {
-  const slug = context.params.slug;
+export async function GET(
+  request: NextRequest,
+  context: any,
+) {
+  const slug = (context?.params as any)?.slug as string | undefined;
   const url = new URL(request.url);
   const token = url.searchParams.get("token") ?? undefined;
 
-  try {
-    const hasCaseId = db
-      .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'case_id'")
-      .get();
-    if (!hasCaseId) {
-      db.prepare("ALTER TABLE cases_index ADD COLUMN case_id INTEGER DEFAULT 1").run();
-    }
-    const hasShareMode = db
-      .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'share_mode'")
-      .get();
-    if (!hasShareMode) {
-      db.prepare("ALTER TABLE cases_index ADD COLUMN share_mode TEXT DEFAULT 'private'").run();
-    }
-    const hasShareToken = db
-      .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'share_token'")
-      .get();
-    if (!hasShareToken) {
-      db.prepare("ALTER TABLE cases_index ADD COLUMN share_token TEXT").run();
-    }
-  } catch (error) {
-    console.warn("ensure case_id column failed", error);
-  }
-
   const db = new Database(DB_PATH);
   try {
+    // Ensure DB columns exist
+    try {
+      const hasCaseId = db
+        .prepare(
+          "SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'case_id'"
+        )
+        .get();
+      if (!hasCaseId) {
+        db.prepare(
+          "ALTER TABLE cases_index ADD COLUMN case_id INTEGER DEFAULT 1"
+        ).run();
+      }
+
+      const hasShareMode = db
+        .prepare(
+          "SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'share_mode'"
+        )
+        .get();
+      if (!hasShareMode) {
+        db.prepare(
+          "ALTER TABLE cases_index ADD COLUMN share_mode TEXT DEFAULT 'private'"
+        ).run();
+      }
+
+      const hasShareToken = db
+        .prepare(
+          "SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'share_token'"
+        )
+        .get();
+      if (!hasShareToken) {
+        db.prepare(
+          "ALTER TABLE cases_index ADD COLUMN share_token TEXT"
+        ).run();
+      }
+    } catch (error) {
+      console.warn("ensure case_id/share columns failed", error);
+    }
+
     const row = db
       .prepare(
         `
@@ -81,7 +99,7 @@ export async function GET(request: Request, context: { params: { slug: string } 
         FROM cases_index ci
         LEFT JOIN case_profiles cp ON ci.case_id = cp.id
         WHERE ci.slug = ?
-      `,
+      `
       )
       .get(slug) as
       | (Record<string, unknown> & {
@@ -97,21 +115,39 @@ export async function GET(request: Request, context: { params: { slug: string } 
     }
 
     const shareModeRaw = (row.share_mode as string) ?? "private";
-    const shareMode = shareModeRaw === "protected" ? "token" : shareModeRaw;
+    const shareMode =
+      shareModeRaw === "protected" ? "token" : shareModeRaw;
     const shareToken = (row.share_token as string | null) ?? null;
+
+    // Permissions
     if (shareMode === "private") {
-      return NextResponse.json({ error: "This case is not shared." }, { status: 403 });
+      return NextResponse.json(
+        { error: "This case is not shared." },
+        { status: 403 }
+      );
     }
     if (shareMode === "token") {
       if (!token || token !== shareToken) {
-        return NextResponse.json({ error: "Invalid or missing token." }, { status: 403 });
+        return NextResponse.json(
+          { error: "Invalid or missing token." },
+          { status: 403 }
+        );
       }
     }
 
-    const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
+    const casePath = path.join(
+      process.cwd(),
+      "data",
+      "cases",
+      `${row.id}.json`
+    );
     if (!fs.existsSync(casePath)) {
-      return NextResponse.json({ error: "Case file not found." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Case file not found." },
+        { status: 404 }
+      );
     }
+
     const raw = fs.readFileSync(casePath, "utf-8");
     const json = JSON.parse(raw) as CaseRecord;
     const normalized = normalizeCase(json);
@@ -123,15 +159,26 @@ export async function GET(request: Request, context: { params: { slug: string } 
 
     const title =
       typeof normalized.title === "object"
-        ? normalized.title?.zh ?? normalized.title?.en ?? normalized.title_zh ?? ""
+        ? normalized.title?.zh ??
+          normalized.title?.en ??
+          normalized.title_zh ??
+          ""
         : normalized.title_zh ?? "";
+
     const summary =
       typeof normalized.summary === "object"
-        ? normalized.summary?.zh ?? normalized.summary?.en ?? normalized.summary_zh ?? ""
+        ? normalized.summary?.zh ??
+          normalized.summary?.en ??
+          normalized.summary_zh ??
+          ""
         : normalized.summary_zh ?? "";
+
     const content =
       typeof normalized.content === "object"
-        ? normalized.content?.zh ?? normalized.content?.en ?? normalized.content_zh ?? ""
+        ? normalized.content?.zh ??
+          normalized.content?.en ??
+          normalized.content_zh ??
+          ""
         : normalized.content_zh ?? "";
 
     const normalizedPhotos = normalizeImages(normalized.photos);
@@ -145,13 +192,19 @@ export async function GET(request: Request, context: { params: { slug: string } 
         summary,
         content,
         tags,
-        symptom_categories: normalized.symptom_categories ?? parseSymptomCategories(row.symptom_categories),
+        symptom_categories:
+          normalized.symptom_categories ??
+          parseSymptomCategories(row.symptom_categories),
         images: normalizedPhotos,
       },
       profile: {
         id: (row.case_id as number | undefined) ?? 1,
-        display_name: (row.display_name as string | undefined) ?? "匿名",
-        nickname: (row.nickname as string | undefined) ?? (row.display_name as string | undefined) ?? "",
+        display_name:
+          (row.display_name as string | undefined) ?? "匿名",
+        nickname:
+          (row.nickname as string | undefined) ??
+          (row.display_name as string | undefined) ??
+          "",
       },
       meta: {
         share_mode: shareMode as "private" | "protected" | "public" | "token",

@@ -40,12 +40,17 @@ export default async function EditCasePage({
       ? item.summary.zh || item.summary.en || item.summary_zh || ""
       : item.summary || item.summary_zh || "";
 
+  const allowedVisibility = ["private", "family", "clinician", "anonymized"] as const;
+  const visibility = allowedVisibility.includes(item.visibility as any)
+    ? (item.visibility as (typeof allowedVisibility)[number])
+    : "private";
+
   const content =
     typeof item.full_story === "object"
       ? item.full_story.zh || item.full_story.en || ""
       : item.full_story ||
         item.full_story_zh ||
-        (typeof item.content === "object"
+        (item.content && typeof item.content === "object"
           ? item.content.zh || item.content.en || ""
           : item.content || item.content_zh || "");
 
@@ -59,7 +64,7 @@ export default async function EditCasePage({
           title,
           summary,
           content,
-          visibility: item.visibility,
+          visibility,
           public_excerpt_zh: item.public_excerpt_zh ?? "",
           photos: Array.isArray(item.photos)
             ? item.photos

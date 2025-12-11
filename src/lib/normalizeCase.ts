@@ -19,15 +19,16 @@ export function normalizeCase(raw: CaseRecord): CaseRecord {
     })
     .filter(Boolean) as { filename: string; caption?: string }[];
 
+  const shareModeRaw = raw.share_mode as string | undefined;
+
   return {
     ...raw,
     case_id: raw.case_id ?? 1,
     share_mode:
-      raw.share_mode === "protected"
+      shareModeRaw === "protected"
         ? "token"
-        : raw.share_mode ?? "private",
-    share_token:
-      raw.share_token === undefined ? null : raw.share_token,
+        : (shareModeRaw as "private" | "public" | "token" | undefined) ?? "private",
+    share_token: raw.share_token === undefined ? null : raw.share_token,
     module: raw.module ?? "dementia",
     visibility: normalizeVisibility(raw.visibility),
     allow_photos_public: raw.allow_photos_public ?? false,
@@ -38,11 +39,11 @@ export function normalizeCase(raw: CaseRecord): CaseRecord {
     symptom_categories: Array.isArray(raw.symptom_categories)
       ? raw.symptom_categories
       : [],
-    ai_summary: raw.ai_summary ?? null,
-    ai_risk: raw.ai_risk ?? null,
-    ai_care_advice: raw.ai_care_advice ?? null,
+    ai_summary: raw.ai_summary ?? undefined,
+    ai_risk: raw.ai_risk ?? undefined,
+    ai_care_advice: raw.ai_care_advice ?? undefined,
     ai_keywords: Array.isArray(raw.ai_keywords) ? raw.ai_keywords : [],
-    ai_score: raw.ai_score ?? null,
-    ai_symptom_shift: raw.ai_symptom_shift ?? null,
+    ai_score: raw.ai_score ?? undefined,
+    ai_symptom_shift: raw.ai_symptom_shift ?? undefined,
   };
 }

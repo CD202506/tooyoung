@@ -1,8 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import type Database from "better-sqlite3";
 
-function ensureCaseProfilesTable(db: Database) {
+function ensureCaseProfilesTable(db: any) {
   const now = new Date().toISOString();
   const tableExists = db
     .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='case_profiles'")
@@ -94,7 +93,7 @@ function ensureCaseProfilesTable(db: Database) {
   }
 }
 
-function ensureCasesTableCaseId(db: Database) {
+function ensureCasesTableCaseId(db: any) {
   const tableExists = db
     .prepare(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='cases_index'",
@@ -112,7 +111,7 @@ function ensureCasesTableCaseId(db: Database) {
   }
 }
 
-function ensureCasesIndexColumns(db: Database) {
+function ensureCasesIndexColumns(db: any) {
   const columns = db
     .prepare("PRAGMA table_info('cases_index')")
     .all() as { name: string }[];

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import { promises as fsp } from "fs";
@@ -73,8 +73,8 @@ async function ensureExampleCase(): Promise<CaseRecord | null> {
 }
 
 export async function GET(
-  request: Request,
-  context: { params: { slug: string } },
+  request: NextRequest,
+  context: any,
 ) {
   const { slug } = context.params;
 
@@ -112,12 +112,12 @@ export async function GET(
 }
 
 export async function PUT(
-  req: Request,
-  context: { params: { slug: string } },
+  request: NextRequest,
+  context: any,
 ) {
   try {
     const { slug } = context.params;
-    const form = await req.formData();
+    const form = await request.formData();
     const date = (form.get("date") as string) || "";
     const time = (form.get("time") as string) || "";
     const titleInput = ((form.get("title") as string) || "").trim();
@@ -153,7 +153,7 @@ export async function PUT(
     const exists = fs.existsSync(casePath);
     const existing: CaseRecord = exists
       ? JSON.parse(fs.readFileSync(casePath, "utf-8"))
-      : {};
+      : {} as any;
 
     const event_datetime = toIso(date, time);
     const summaryAuto =
@@ -165,7 +165,10 @@ export async function PUT(
     await fsp.mkdir(baseDir, { recursive: true });
 
     const photos = Array.isArray(existing.photos)
-      ? existing.photos.filter((p) => !removedPhotos.includes(p))
+      ? existing.photos.filter(
+          (p): p is string =>
+            typeof p === "string" && !removedPhotos.includes(p),
+        )
       : [];
     const attachments = Array.isArray(existing.attachments)
       ? existing.attachments.filter((a) => !removedAttachments.includes(a))
@@ -177,7 +180,7 @@ export async function PUT(
       if (!file || typeof file.arrayBuffer !== "function") continue;
       const buf = Buffer.from(await file.arrayBuffer());
       const ext = path.extname(file.name) || "";
-      const isImage = /.(png|jpe?g|webp|gif|bmp)$/i.test(ext);
+      const isImage = /\.(png|jpe?g|webp|gif|bmp)$/i.test(ext);
       const baseName = isImage
         ? `${String(photoIndex).padStart(2, "0")}${ext || ".jpg"}`
         : file.name;
@@ -291,8 +294,8 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  context: { params: { slug: string } },
+  request: NextRequest,
+  context: any,
 ) {
   try {
     const { slug } = context.params;

@@ -124,7 +124,7 @@ export async function POST(request: Request) {
     const sanitized = sanitizeInput(body);
     const cases = loadCases();
     const normalized = normalizeProfile(sanitized, cases);
-    const saved = saveProfile(normalized, cases);
+    const saved = saveProfile(normalized as Partial<CaseProfile>, cases);
 
     return NextResponse.json({ ok: true, profile: saved });
   } catch (err) {

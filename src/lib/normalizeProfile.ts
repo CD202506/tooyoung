@@ -4,7 +4,7 @@ import { ClinicalScaleRecord } from "@/types/clinicalScale";
 import { detectStage } from "@/lib/stageDetector";
 
 export const DEFAULT_PROFILE: CaseProfile = {
-  display_name: "小Z",
+  display_name: "¤pZ",
   legal_name: null,
   birth_year: null,
   gender: null,
@@ -25,6 +25,15 @@ export const DEFAULT_PROFILE: CaseProfile = {
   },
   notes: "",
 };
+
+function normalizeGender(value: any): "M" | "F" | "Other" | null {
+  if (!value) return null;
+  const v = String(value).toLowerCase();
+  if (v === "male" || v === "m") return "M";
+  if (v === "female" || v === "f") return "F";
+  if (v === "other" || v === "o") return "Other";
+  return null;
+}
 
 export function normalizeProfile(
   raw?: Partial<CaseProfile> | null,
@@ -48,7 +57,7 @@ export function normalizeProfile(
       base.legal_name === undefined ? DEFAULT_PROFILE.legal_name : base.legal_name,
     birth_year:
       base.birth_year === undefined ? DEFAULT_PROFILE.birth_year : base.birth_year,
-    gender: base.gender ?? DEFAULT_PROFILE.gender,
+    gender: normalizeGender(base.gender ?? DEFAULT_PROFILE.gender),
     diagnosis_date:
       base.diagnosis_date === undefined
         ? DEFAULT_PROFILE.diagnosis_date

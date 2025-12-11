@@ -1,4 +1,7 @@
-import { CaseItem } from "./types";
+type CaseItem = {
+  event_datetime: string;
+  tags: string[];
+};
 
 export function analyzeTrends(cases: CaseItem[]) {
   const now = Date.now();
@@ -9,7 +12,6 @@ export function analyzeTrends(cases: CaseItem[]) {
   const stats7: Record<string, number> = {};
   const firstAppearance: Record<string, string> = {};
 
-  // 排序
   const sorted = [...cases].sort(
     (a, b) =>
       new Date(a.event_datetime).getTime() -
@@ -27,12 +29,11 @@ export function analyzeTrends(cases: CaseItem[]) {
       if (!stats30[tag]) stats30[tag] = 0;
       if (!stats7[tag]) stats7[tag] = 0;
 
-      if (t >= days30) stats30[tag]++;
-      if (t >= days7) stats7[tag]++;
+      if (t >= days30) stats30[tag] += 1;
+      if (t >= days7) stats7[tag] += 1;
     }
   }
 
-  // 趨勢分析
   const trendSummary: string[] = [];
 
   for (const tag of Object.keys(stats30)) {
@@ -48,24 +49,23 @@ export function analyzeTrends(cases: CaseItem[]) {
     }
   }
 
-  // 臨床敘述生成
   const clinicalLines: string[] = [];
 
-  if (stats7["記憶缺失"] > (stats30["記憶缺失"] || 0) * 0.5) {
-    clinicalLines.push("• 短期記憶退化加速，重複提問行為增加。");
+  if ((stats7["記憶缺失"] ?? 0) > (stats30["記憶缺失"] || 0) * 0.5) {
+    clinicalLines.push("‧ 短期記憶退化加速，重複提問行為增加。");
   }
 
-  if (stats7["語意混淆"] > 0) {
-    clinicalLines.push("• 日常語意理解能力下降（如檔案、物品）。");
+  if ((stats7["語意混淆"] ?? 0) > 0) {
+    clinicalLines.push("‧ 日常語意理解能力下降（如檔案、物品）。");
   }
 
-  if (stats7["執行功能障礙"] > 0) {
-    clinicalLines.push("• 任務維持能力減弱（購物、處理事情時容易偏離目標）。");
+  if ((stats7["執行功能障礙"] ?? 0) > 0) {
+    clinicalLines.push("‧ 任務維持能力減弱（購物、處理事情時容易偏離目標）。");
   }
 
-  if (stats7["物品辨識困難"] === 1) {
+  if ((stats7["物品辨識困難"] ?? 0) === 1) {
     clinicalLines.push(
-      "• 物品辨識困難首次出現，可能與語意記憶退化有關。",
+      "‧ 物品辨識困難首次出現，可能與語意記憶退化有關。",
     );
   }
 

@@ -1,15 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 type Params = { tag: string };
 
 export async function GET(
-  _req: Request,
-  { params }: { params: Params },
+  _req: NextRequest,
+  context: any,
 ) {
   try {
-    const { tag } = params;
+    const params = context?.params as Params | Promise<Params>;
+    const tag =
+      params && typeof (params as Promise<Params>).then === "function"
+        ? (await params).tag
+        : (params as Params | undefined)?.tag;
     // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
-    // @ts-expect-error: runtime dependency expected to be installed separately.
     const Database = require("better-sqlite3");
     const db = new Database("db/tooyoung.db");
 

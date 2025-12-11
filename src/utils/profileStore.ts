@@ -5,11 +5,16 @@ import { ensureProfileFile, getProfileFilePath } from "@/lib/profileFile";
 import { CaseRecord } from "@/types/case";
 import { ClinicalScaleRecord } from "@/types/clinicalScale";
 
+function ensureCaseProfileFile(defaultValue: CaseProfile) {
+  const dataToWrite = JSON.stringify(defaultValue, null, 2);
+  ensureProfileFile(JSON.parse(dataToWrite));
+}
+
 export function loadProfile(
   cases?: CaseRecord[],
   scales?: ClinicalScaleRecord[],
 ): CaseProfile {
-  ensureProfileFile(DEFAULT_PROFILE);
+  ensureCaseProfileFile(DEFAULT_PROFILE);
   const filePath = getProfileFilePath();
   try {
     const raw = fs.readFileSync(filePath, "utf-8");
@@ -26,7 +31,7 @@ export function saveProfile(
   cases?: CaseRecord[],
   scales?: ClinicalScaleRecord[],
 ): CaseProfile {
-  ensureProfileFile(DEFAULT_PROFILE);
+  ensureCaseProfileFile(DEFAULT_PROFILE);
   const filePath = getProfileFilePath();
   const existing = loadProfile(cases, scales);
   const merged = normalizeProfile(

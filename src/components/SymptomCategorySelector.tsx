@@ -38,7 +38,7 @@ export function SymptomCategorySelector({ selected, onChange }: Props) {
                 style={{ backgroundColor: cat.color || "#f59e0b" }}
                 aria-hidden
               />
-              <span>{cat.labelZh || cat.name_zh}</span>
+              <span>{cat.labelZh}</span>
             </button>
           );
         })}

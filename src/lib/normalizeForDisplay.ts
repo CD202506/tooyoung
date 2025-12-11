@@ -46,7 +46,7 @@ export function normalizeForDisplay(raw: CaseRecord): DisplayCase {
           }
           return null;
         })
-        .filter((p): p is { file: string; caption?: string } => Boolean(p?.file))
+        .filter((p) => Boolean(p?.file)) as { file: string; caption?: string }[]
     : [];
 
   const displayPhotos: DisplayPhoto[] =

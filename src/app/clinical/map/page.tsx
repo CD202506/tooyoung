@@ -108,7 +108,9 @@ function stageLabel(stage: StageDetectResult["stage"]) {
   return "晚期";
 }
 
-function mmseTrendLabel(label?: StageDetectResult["meta"]["mmse_trend"]) {
+function mmseTrendLabel(
+  label?: "stable_or_slow" | "mild_decline" | "rapid_decline",
+) {
   if (!label) return null;
   if (label === "stable_or_slow") return "MMSE 變化穩定或緩慢";
   if (label === "mild_decline") return "MMSE 有輕度下降";

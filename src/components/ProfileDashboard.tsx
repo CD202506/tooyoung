@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import Link from "next/link";
 import { ProfileMiniInsights } from "@/components/ProfileMiniInsights";
 
@@ -12,13 +13,14 @@ export type DashboardEvent = {
   summary?: string | null;
   event_datetime?: string | null;
   symptom_categories?: string[];
+  tags?: string[];
 };
 
 type Card = {
   title: string;
   description: string;
   href: string;
-  icon: JSX.Element;
+  icon: ReactNode;
 };
 
 function formatDate(date?: string | null) {

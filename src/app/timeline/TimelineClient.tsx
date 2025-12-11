@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { TimelineCard } from "@/components/TimelineCard";
 import { extractAllTags, filterCasesByTags } from "@/lib/tagUtils";
+import { CaseRecord } from "@/types/case";
 
 export type TimelineEvent = {
   id: string;
@@ -68,7 +69,16 @@ export function TimelineClient({ events }: Props) {
       .filter(([, evs]) => evs.length > 0);
   }, [groups, selectedCategory, selectedMonth, selectedTags]);
 
-  const allTags = useMemo(() => extractAllTags(events), [events]);
+  const allTags = useMemo(() => {
+    const normalized = events.map(
+      (ev) =>
+        ({
+          ...ev,
+          visibility: undefined,
+        }) as CaseRecord,
+    );
+    return extractAllTags(normalized);
+  }, [events]);
 
   return (
     <div className="space-y-6">

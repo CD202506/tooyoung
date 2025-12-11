@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
-    // @ts-expect-error: runtime dependency expected to be installed separately.
     const Database = require("better-sqlite3");
     const db = new Database("db/tooyoung.db");
 

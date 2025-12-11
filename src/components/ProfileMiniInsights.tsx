@@ -1,12 +1,22 @@
-import { buildInsights } from "@/utils/insights";
 import { DashboardEvent } from "@/components/ProfileDashboard";
+import { CaseRecord } from "@/types/case";
+import { buildInsights } from "@/utils/insights";
 
 type Props = {
   events: DashboardEvent[];
 };
 
 export function ProfileMiniInsights({ events }: Props) {
-  const insights = buildInsights(events);
+  const normalizedEvents: CaseRecord[] = events.map((ev) => ({
+    slug: ev.slug,
+    title: ev.title ? { zh: ev.title } : undefined,
+    summary: ev.summary ? { zh: ev.summary } : undefined,
+    event_datetime: ev.event_datetime ?? undefined,
+    tags: ev.tags ?? [],
+    symptom_categories: ev.symptom_categories ?? [],
+  }));
+
+  const insights = buildInsights(normalizedEvents);
   const maxDaily =
     Object.keys(insights.trend.daily).length > 0
       ? Math.max(...Object.values(insights.trend.daily))

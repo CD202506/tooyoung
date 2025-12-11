@@ -43,7 +43,7 @@ function loadShareMeta() {
 export async function GET() {
   try {
     const cases = loadCases();
-    const profile = normalizeProfile(loadProfile(cases), cases);
+    const profile = normalizeProfile(loadProfile(cases) as Partial<CaseProfile>, cases);
     const share = loadShareMeta();
     return NextResponse.json({
       ok: true,

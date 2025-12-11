@@ -35,9 +35,9 @@ async function getCase(slug: string): Promise<CaseRecord | null> {
 export default async function CaseDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
   if (!slug) return notFound();
 
   const itemRaw = await getCase(slug);

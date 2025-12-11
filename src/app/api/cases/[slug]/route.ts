@@ -74,9 +74,9 @@ async function ensureExampleCase(): Promise<CaseRecord | null> {
 
 export async function GET(
   request: Request,
-  context: { params: Promise<{ slug: string }> },
+  context: { params: { slug: string } },
 ) {
-  const { slug } = await context.params;
+  const { slug } = context.params;
 
   if (slug === "example-slug") {
     const created = await ensureExampleCase();
@@ -113,10 +113,10 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ slug: string }> },
+  context: { params: { slug: string } },
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = context.params;
     const form = await req.formData();
     const date = (form.get("date") as string) || "";
     const time = (form.get("time") as string) || "";
@@ -292,10 +292,10 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  context: { params: Promise<{ slug: string }> },
+  context: { params: { slug: string } },
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = context.params;
     if (!slug) {
       return NextResponse.json({ error: "missing slug" }, { status: 400 });
     }

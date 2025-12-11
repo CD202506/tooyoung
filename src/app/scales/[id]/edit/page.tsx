@@ -7,12 +7,9 @@ import { ClinicalScaleRecord } from "@/types/clinicalScale";
 export default function ScaleEditPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const [resolvedParams, setResolvedParams] = useState<{ id: string }>({ id: "" });
-  useEffect(() => {
-    params.then(setResolvedParams);
-  }, [params]);
+  const [resolvedParams] = useState<{ id: string }>({ id: params.id });
 
   const router = useRouter();
   const [scale, setScale] = useState<ClinicalScaleRecord | null>(null);

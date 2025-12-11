@@ -15,9 +15,9 @@ async function loadCase(slug: string) {
 export default async function EditCasePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
   const item: CaseRecord | null = await loadCase(slug);
   if (!item) return notFound();
 

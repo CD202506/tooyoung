@@ -13,9 +13,9 @@ async function loadScale(id: string): Promise<ClinicalScaleRecord | null> {
 export default async function ScaleDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
+  const { id } = params;
   const [scale, profile] = await Promise.all([loadScale(id), getProfileClient()]);
 
   if (!scale) {

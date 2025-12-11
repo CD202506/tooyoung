@@ -62,6 +62,19 @@ export default async function CaseDetailPage({
   const masked = profile.privacy_mode === "masked";
   const displayShort = masked ? maskSensitiveText(item.displayShort) : item.displayShort;
   const displayFull = masked ? maskSensitiveText(item.displayFull) : item.displayFull;
+  const risk = item.ai_risk || "低～中風險";
+  const aiKeywords = Array.isArray(item.ai_keywords) ? item.ai_keywords : [];
+  const aiAdvice = (item.ai_care_advice || "")
+    .split(/[；;。]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const riskColor =
+    risk.includes("高") || risk.includes("走失")
+      ? "bg-rose-600 text-white"
+      : risk.includes("中")
+        ? "bg-amber-500 text-white"
+        : "bg-emerald-600 text-white";
 
   return (
     <main className="min-h-screen bg-neutral-950 px-4 py-6 text-neutral-100">
@@ -143,6 +156,65 @@ export default async function CaseDetailPage({
             </p>
           </section>
         )}
+
+        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/80 p-4 shadow-sm">
+          <h2 className="text-xl font-semibold text-neutral-100">AI 智慧分析</h2>
+          <p className="mt-2 text-sm text-neutral-300">
+            {item.ai_summary || "尚無摘要"}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span className={`rounded-full px-3 py-1 font-semibold ${riskColor}`}>
+              {risk}
+            </span>
+            {typeof item.ai_score === "number" && (
+              <div className="flex items-center gap-2 text-neutral-300">
+                <span>AI 分數</span>
+                <div className="h-2 w-32 rounded-full bg-neutral-800">
+                  <div
+                    className="h-2 rounded-full bg-blue-400"
+                    style={{ width: `${Math.min(Math.max(item.ai_score, 0), 100)}%` }}
+                  />
+                </div>
+                <span className="text-neutral-200">{Math.round(item.ai_score)} / 100</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <div className="text-sm font-semibold text-neutral-100">照護建議</div>
+            {aiAdvice.length === 0 ? (
+              <div className="text-xs text-neutral-400">尚無建議</div>
+            ) : (
+              <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-200">
+                {aiAdvice.map((ad, idx) => (
+                  <li key={`${ad}-${idx}`}>{ad}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <div className="text-sm font-semibold text-neutral-100">關鍵字</div>
+            <div className="flex flex-wrap gap-2">
+              {aiKeywords.length === 0 ? (
+                <span className="text-xs text-neutral-400">尚無關鍵字</span>
+              ) : (
+                aiKeywords.map((kw, idx) => (
+                  <span
+                    key={`${kw}-${idx}`}
+                    className="rounded-full bg-neutral-800 px-2 py-1 text-[11px] font-semibold text-neutral-200"
+                  >
+                    {kw}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 text-sm text-neutral-200">
+            {item.ai_symptom_shift || "暫無明顯變化"}
+          </div>
+        </section>
 
         {item.galleryPhotos.length > 0 && (
           <section className="rounded-2xl border border-neutral-800 bg-neutral-900/80 p-4 shadow-sm">

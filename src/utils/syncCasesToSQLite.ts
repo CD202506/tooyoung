@@ -6,6 +6,8 @@ type CaseContent = {
   id?: string;
   slug?: string;
   case_id?: number;
+  emotion?: string;
+  severity?: number;
   event_datetime?: string;
   title?: { zh?: string | null; en?: string | null } | string;
   title_zh?: string;
@@ -121,6 +123,62 @@ export function syncCasesToSQLite() {
     db.prepare("ALTER TABLE cases_index ADD COLUMN share_token TEXT").run();
     addedColumns.push("share_token");
   }
+  const hasEmotionColumn = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'emotion'")
+    .get();
+  if (!hasEmotionColumn) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN emotion TEXT").run();
+    addedColumns.push("emotion");
+  }
+  const hasSeverityColumn = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'severity'")
+    .get();
+  if (!hasSeverityColumn) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN severity INTEGER DEFAULT 0").run();
+    addedColumns.push("severity");
+  }
+  const hasAiSummary = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'ai_summary'")
+    .get();
+  if (!hasAiSummary) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_summary TEXT").run();
+    addedColumns.push("ai_summary");
+  }
+  const hasAiRisk = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'ai_risk'")
+    .get();
+  if (!hasAiRisk) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_risk TEXT").run();
+    addedColumns.push("ai_risk");
+  }
+  const hasAiCare = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'ai_care_advice'")
+    .get();
+  if (!hasAiCare) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_care_advice TEXT").run();
+    addedColumns.push("ai_care_advice");
+  }
+  const hasAiKeywords = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'ai_keywords'")
+    .get();
+  if (!hasAiKeywords) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_keywords TEXT").run();
+    addedColumns.push("ai_keywords");
+  }
+  const hasAiScore = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'ai_score'")
+    .get();
+  if (!hasAiScore) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_score INTEGER").run();
+    addedColumns.push("ai_score");
+  }
+  const hasAiShift = db
+    .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'ai_symptom_shift'")
+    .get();
+  if (!hasAiShift) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_symptom_shift TEXT").run();
+    addedColumns.push("ai_symptom_shift");
+  }
 
   const upsertCaseStmt = db.prepare(`
     INSERT INTO cases_index (
@@ -128,6 +186,14 @@ export function syncCasesToSQLite() {
       slug,
       case_id,
       event_datetime,
+      emotion,
+      severity,
+      ai_summary,
+      ai_risk,
+      ai_care_advice,
+      ai_keywords,
+      ai_score,
+      ai_symptom_shift,
       short_sentence_zh,
       summary_zh,
       title_zh,
@@ -146,6 +212,14 @@ export function syncCasesToSQLite() {
       @slug,
       @case_id,
       @event_datetime,
+      @emotion,
+      @severity,
+      @ai_summary,
+      @ai_risk,
+      @ai_care_advice,
+      @ai_keywords,
+      @ai_score,
+      @ai_symptom_shift,
       @short_sentence_zh,
       @summary_zh,
       @title_zh,
@@ -173,6 +247,14 @@ export function syncCasesToSQLite() {
       tags = excluded.tags,
       share_mode = excluded.share_mode,
       share_token = excluded.share_token,
+      emotion = excluded.emotion,
+      severity = excluded.severity,
+      ai_summary = excluded.ai_summary,
+      ai_risk = excluded.ai_risk,
+      ai_care_advice = excluded.ai_care_advice,
+      ai_keywords = excluded.ai_keywords,
+      ai_score = excluded.ai_score,
+      ai_symptom_shift = excluded.ai_symptom_shift,
       visibility = excluded.visibility,
       case_id = excluded.case_id,
       updated_at = excluded.updated_at
@@ -280,12 +362,54 @@ export function syncCasesToSQLite() {
           parsed && typeof parsed === "object" && "share_token" in parsed
             ? ((parsed as { share_token?: string | null }).share_token ?? null)
             : null;
+        const emotion =
+          parsed && typeof parsed === "object" && "emotion" in parsed
+            ? ((parsed as { emotion?: string }).emotion ?? null)
+            : null;
+        const severity =
+          parsed && typeof parsed === "object" && "severity" in parsed
+            ? Number((parsed as { severity?: number }).severity) || 0
+            : 0;
+        const ai_summary =
+          parsed && typeof parsed === "object" && "ai_summary" in parsed
+            ? ((parsed as { ai_summary?: string | null }).ai_summary ?? null)
+            : null;
+        const ai_risk =
+          parsed && typeof parsed === "object" && "ai_risk" in parsed
+            ? ((parsed as { ai_risk?: string | null }).ai_risk ?? null)
+            : null;
+        const ai_care_advice =
+          parsed && typeof parsed === "object" && "ai_care_advice" in parsed
+            ? ((parsed as { ai_care_advice?: string | null }).ai_care_advice ?? null)
+            : null;
+        const ai_keywords =
+          parsed && typeof parsed === "object" && "ai_keywords" in parsed
+            ? (Array.isArray((parsed as { ai_keywords?: unknown }).ai_keywords)
+                ? (parsed as { ai_keywords?: string[] }).ai_keywords
+                : [])
+            : [];
+        const ai_score =
+          parsed && typeof parsed === "object" && "ai_score" in parsed
+            ? Number((parsed as { ai_score?: number }).ai_score) || 0
+            : 0;
+        const ai_symptom_shift =
+          parsed && typeof parsed === "object" && "ai_symptom_shift" in parsed
+            ? ((parsed as { ai_symptom_shift?: string | null }).ai_symptom_shift ?? null)
+            : null;
 
         const record = {
           id,
           slug,
           event_datetime,
           case_id,
+          emotion,
+          severity,
+          ai_summary,
+          ai_risk,
+          ai_care_advice,
+          ai_keywords: JSON.stringify(ai_keywords ?? []),
+          ai_score,
+          ai_symptom_shift,
           short_sentence_zh: short_sentence,
           summary_zh: summary,
           title_zh: title,

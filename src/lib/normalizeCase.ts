@@ -38,5 +38,11 @@ export function normalizeCase(raw: CaseRecord): CaseRecord {
     symptom_categories: Array.isArray(raw.symptom_categories)
       ? raw.symptom_categories
       : [],
+    ai_summary: raw.ai_summary ?? null,
+    ai_risk: raw.ai_risk ?? null,
+    ai_care_advice: raw.ai_care_advice ?? null,
+    ai_keywords: Array.isArray(raw.ai_keywords) ? raw.ai_keywords : [],
+    ai_score: raw.ai_score ?? null,
+    ai_symptom_shift: raw.ai_symptom_shift ?? null,
   };
 }

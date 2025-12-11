@@ -136,6 +136,30 @@ function ensureCasesIndexColumns(db: Database) {
   if (!names.has("share_token")) {
     db.prepare("ALTER TABLE cases_index ADD COLUMN share_token TEXT").run();
   }
+  if (!names.has("emotion")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN emotion TEXT").run();
+  }
+  if (!names.has("severity")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN severity INTEGER DEFAULT 0").run();
+  }
+  if (!names.has("ai_summary")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_summary TEXT").run();
+  }
+  if (!names.has("ai_risk")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_risk TEXT").run();
+  }
+  if (!names.has("ai_care_advice")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_care_advice TEXT").run();
+  }
+  if (!names.has("ai_keywords")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_keywords TEXT").run();
+  }
+  if (!names.has("ai_score")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_score INTEGER").run();
+  }
+  if (!names.has("ai_symptom_shift")) {
+    db.prepare("ALTER TABLE cases_index ADD COLUMN ai_symptom_shift TEXT").run();
+  }
 }
 
 /**

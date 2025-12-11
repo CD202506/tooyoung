@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { symptomCategories } from "@/lib/symptomCategories";
 import { suggestCategoriesForCase } from "@/lib/symptomSuggest";
+import { SymptomCategorySelector } from "@/components/SymptomCategorySelector";
+import { suggestSmartTags } from "@/lib/smartTagSuggest";
 
 type FormState = {
   date: string;
@@ -20,6 +21,9 @@ type FormState = {
   visibility: "private" | "family" | "clinician" | "anonymized";
   public_excerpt_zh: string;
   symptom_categories: string[];
+  emotion: "positive" | "neutral" | "negative";
+  severity: number;
+  tags: string[];
 };
 
 type Props = {
@@ -41,6 +45,9 @@ const fallbackState: FormState = {
   visibility: "private",
   public_excerpt_zh: "",
   symptom_categories: [],
+  emotion: "neutral",
+  severity: 0,
+  tags: [],
 };
 
 export function CaseEditForm({ slug, initial }: Props) {
@@ -62,9 +69,20 @@ export function CaseEditForm({ slug, initial }: Props) {
     symptom_categories: Array.isArray((initial as { symptom_categories?: string[] }).symptom_categories)
       ? (initial as { symptom_categories?: string[] }).symptom_categories!
       : [],
+    emotion: (initial as { emotion?: FormState["emotion"] }).emotion || "neutral",
+    severity:
+      typeof (initial as { severity?: number }).severity === "number"
+        ? (initial as { severity?: number }).severity!
+        : 0,
+    tags: Array.isArray((initial as { tags?: string[] }).tags)
+      ? (initial as { tags?: string[] }).tags!
+      : [],
   });
   const [submitting, setSubmitting] = useState(false);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrError, setOcrError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [smartTags, setSmartTags] = useState<string[]>([]);
   const router = useRouter();
 
   const buildTitleSummary = (text: string) => {
@@ -108,6 +126,19 @@ export function CaseEditForm({ slug, initial }: Props) {
       }
     }
   }, [form.content, form.summary, form.title, form.symptom_categories.length, initial]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const suggestions = suggestSmartTags({
+        title: form.title,
+        summary: form.summary,
+        content: form.content,
+        symptoms: form.symptom_categories,
+      });
+      setSmartTags(suggestions);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [form.title, form.summary, form.content, form.symptom_categories]);
 
   const autoGenerate = () => {
     const textSource =
@@ -203,6 +234,52 @@ export function CaseEditForm({ slug, initial }: Props) {
     setForm((prev) => ({ ...prev, files: Array.from(list) }));
   };
 
+  const handleOCRUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    const file = fileList[0];
+    setOcrError(null);
+    setOcrLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      const res = await fetch("/api/vision/extract", {
+        method: "POST",
+        body: fd,
+      });
+      const json = await res.json();
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || "OCR 解析失敗");
+      }
+
+      const replaceContent = form.content.trim().length > 0
+        ? window.confirm("偵測到 OCR 結果，要覆寫原內容嗎？")
+        : true;
+
+      setForm((prev) => ({
+        ...prev,
+        title: replaceContent ? json.title || prev.title : prev.title,
+        summary: replaceContent ? json.summary || prev.summary : prev.summary,
+        content: replaceContent ? json.raw_text || prev.content : prev.content,
+        symptom_categories:
+          Array.isArray(json?.suggestions?.symptom_categories) && json.suggestions.symptom_categories.length > 0
+            ? json.suggestions.symptom_categories
+            : prev.symptom_categories,
+        emotion: json.emotion || prev.emotion,
+        severity:
+          typeof json.severity === "number"
+            ? json.severity
+            : prev.severity,
+      }));
+      setMessage("已套用 OCR 結果，請確認後儲存。");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "OCR 發生錯誤";
+      setOcrError(msg);
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.date || !form.time) {
@@ -228,6 +305,9 @@ export function CaseEditForm({ slug, initial }: Props) {
       fd.append("title", form.title || form.content.split("\n")[0] || "");
       fd.append("summary", generatedSummary);
       fd.append("content", form.content);
+      fd.append("emotion", form.emotion);
+      fd.append("severity", String(form.severity ?? 0));
+      fd.append("tags", JSON.stringify(form.tags || []));
       fd.append(
         "removedPhotos",
         JSON.stringify(Array.from(form.removedPhotos)),
@@ -344,6 +424,106 @@ export function CaseEditForm({ slug, initial }: Props) {
           />
         </label>
 
+        <div className="space-y-2">
+          <div className="text-sm text-neutral-300">症狀分類（可複選）</div>
+          <SymptomCategorySelector
+            selected={form.symptom_categories}
+            onChange={(v) => setForm({ ...form, symptom_categories: v })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-sm text-neutral-300">建議標籤（AI 智慧建議）</div>
+          <div className="flex flex-wrap gap-2">
+            {smartTags.length === 0 ? (
+              <span className="text-xs text-neutral-500">目前沒有建議</span>
+            ) : (
+              smartTags.map((tag) => {
+                const used = form.tags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    disabled={used}
+                    onClick={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        tags: used ? prev.tags : [...prev.tags, tag],
+                      }))
+                    }
+                    className={`rounded-full border px-3 py-1 text-xs transition ${
+                      used
+                        ? "border-neutral-700 bg-neutral-800 text-neutral-500"
+                        : "border-neutral-700 bg-neutral-800 text-neutral-200 hover:border-blue-400 hover:bg-neutral-700"
+                    }`}
+                  >
+                    #{tag}
+                  </button>
+                );
+              })
+            )}
+          </div>
+          {form.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 text-xs text-neutral-300">
+              已加入：
+              {form.tags.map((t) => (
+                <span key={t} className="rounded-full bg-neutral-800 px-2 py-1 text-[11px] text-neutral-200">
+                  #{t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+            <div className="text-sm text-neutral-200">情緒偵測</div>
+            <div className="flex gap-2 text-xs">
+              {(["positive", "neutral", "negative"] as const).map((e) => (
+                <button
+                  key={e}
+                  type="button"
+                  onClick={() => setForm({ ...form, emotion: e })}
+                  className={`rounded-full px-3 py-1 font-semibold transition ${
+                    form.emotion === e
+                      ? e === "positive"
+                        ? "bg-emerald-600 text-white"
+                        : e === "negative"
+                          ? "bg-rose-600 text-white"
+                          : "bg-neutral-600 text-white"
+                      : "bg-neutral-800 text-neutral-200 hover:bg-neutral-700"
+                  }`}
+                >
+                  {e === "positive" ? "正向" : e === "negative" ? "負向" : "中性"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+            <div className="flex items-center justify-between text-sm text-neutral-200">
+              <span>事件強度（0-5）</span>
+              <span className="text-xs text-neutral-500">{form.severity}</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={5}
+              step={1}
+              value={form.severity}
+              onChange={(e) => setForm({ ...form, severity: Number(e.target.value) })}
+              className="w-full accent-blue-500"
+            />
+            <div className="flex gap-1">
+              {new Array(5).fill(0).map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`h-2 flex-1 rounded ${idx < form.severity ? "bg-amber-400" : "bg-neutral-700"}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
         <label className="flex flex-col gap-2 text-sm text-neutral-300">
           公開用精簡敘述（可匿名，可選填）
           <textarea
@@ -377,41 +557,6 @@ export function CaseEditForm({ slug, initial }: Props) {
             <option value="anonymized">🌐 匿名分享</option>
           </select>
         </label>
-
-        <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-900 p-3">
-          <div className="flex items-center justify-between text-sm text-neutral-200">
-            <span>症狀類別（可複選）</span>
-            <span className="text-xs text-neutral-500">
-              以下為系統依內容自動建議的類別，你可以自行增減。
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {symptomCategories.map((cat) => {
-              const active = form.symptom_categories.includes(cat.id);
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() =>
-                    setForm((prev) => {
-                      const next = active
-                        ? prev.symptom_categories.filter((c) => c !== cat.id)
-                        : [...prev.symptom_categories, cat.id];
-                      return { ...prev, symptom_categories: next };
-                    })
-                  }
-                  className={`rounded-full border px-3 py-1 text-xs transition ${
-                    active
-                      ? "border-blue-500 bg-blue-600 text-white"
-                      : "border-neutral-700 bg-neutral-800 text-neutral-200 hover:border-blue-500 hover:text-blue-400"
-                  }`}
-                >
-                  {cat.labelZh}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         <label className="flex flex-col gap-2 text-sm text-neutral-300">
           內容（可直接輸入對話紀錄）
@@ -497,6 +642,24 @@ export function CaseEditForm({ slug, initial }: Props) {
               已選取 {form.files.length} 個檔案
             </div>
           )}
+          <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+            <div className="flex items-center justify-between text-sm text-neutral-200">
+              <span>圖片 OCR（自動填入欄位）</span>
+              {ocrLoading && <span className="text-xs text-blue-300">解析中...</span>}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleOCRUpload}
+              className="text-neutral-200 cursor-pointer text-xs"
+            />
+            {ocrError && (
+              <div className="rounded border border-red-500/60 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+                {ocrError}
+              </div>
+            )}
+            <p className="text-[11px] text-neutral-500">上傳單張圖片，自動擷取文字並填入標題/摘要/內容與建議症狀分類。</p>
+          </div>
         </label>
 
         {message && (
@@ -549,6 +712,40 @@ export function CaseEditForm({ slug, initial }: Props) {
             {form.content}
           </pre>
         )}
+        {form.symptom_categories.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {form.symptom_categories.map((cat) => (
+              <span
+                key={cat}
+                className="rounded-full bg-neutral-100 px-2 py-1 text-[11px] font-semibold text-neutral-800"
+              >
+                {cat}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-neutral-300">
+          <span
+            className={`rounded-full px-2 py-1 font-semibold ${
+              form.emotion === "positive"
+                ? "bg-emerald-600 text-white"
+                : form.emotion === "negative"
+                  ? "bg-rose-600 text-white"
+                  : "bg-neutral-600 text-white"
+            }`}
+          >
+            {form.emotion === "positive" ? "正向" : form.emotion === "negative" ? "負向" : "中性"}
+          </span>
+          <span className="flex items-center gap-1">
+            強度：
+            {new Array(5).fill(0).map((_, idx) => (
+              <span
+                key={idx}
+                className={`h-2 w-3 rounded ${idx < form.severity ? "bg-amber-400" : "bg-neutral-700"}`}
+              />
+            ))}
+          </span>
+        </div>
         {form.files.length > 0 && (
           <div className="mt-3 text-sm text-neutral-300">
             新增檔案列表：

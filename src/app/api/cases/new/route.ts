@@ -5,6 +5,8 @@ import slugify from "slugify";
 import { syncCasesToSQLite } from "@/utils/syncCasesToSQLite";
 import { CaseRecord } from "@/types/case";
 import { normalizeVisibility } from "@/lib/caseVisibility";
+import { detectEmotion, scoreSeverity } from "@/lib/emotionDetect";
+import { buildAIInsight } from "@/lib/aiInsightEngine";
 
 type CasePayload = CaseRecord & {
   id: string;
@@ -21,6 +23,14 @@ type CasePayload = CaseRecord & {
   created_at: string;
   updated_at: string;
   data_version: number;
+  emotion?: string;
+  severity?: number;
+  ai_summary?: string | null;
+  ai_risk?: string | null;
+  ai_care_advice?: string | null;
+  ai_keywords?: string[];
+  ai_score?: number | null;
+  ai_symptom_shift?: string | null;
 };
 
 function buildId(date: string, time: string) {
@@ -47,6 +57,16 @@ export async function POST(req: Request) {
       (form.get("visibility") as string | null) as any,
     );
     const publicExcerpt = ((form.get("public_excerpt_zh") as string) || "").trim();
+    const tagsInput = (form.get("tags") as string) || "[]";
+    let tags: string[] = [];
+    try {
+      const parsed = JSON.parse(tagsInput) as unknown;
+      if (Array.isArray(parsed)) {
+        tags = parsed.filter((t): t is string => typeof t === "string");
+      }
+    } catch {
+      tags = [];
+    }
 
     if (!date || !time) {
       return NextResponse.json({ error: "缺少日期或時間" }, { status: 400 });
@@ -94,6 +114,15 @@ export async function POST(req: Request) {
     const summaryAuto =
       summaryInput ||
       (content ? content.slice(0, 120) : title ? title.slice(0, 120) : "");
+    const emotion = detectEmotion(content);
+    const severity = scoreSeverity(content);
+    const ai = buildAIInsight({
+      title: title || content.split("\n")[0] || "",
+      summary: summaryAuto,
+      content,
+      tags,
+      symptoms: [],
+    });
 
     const payload: CasePayload = {
       id,
@@ -104,7 +133,7 @@ export async function POST(req: Request) {
       short_sentence: { zh: content.split("\n")[0] || null, en: null },
       summary: { zh: summaryAuto || null, en: null },
       full_story: { zh: content || null, en: null },
-      tags: [],
+      tags,
       photos,
       attachments,
       created_at: event_datetime,
@@ -115,6 +144,14 @@ export async function POST(req: Request) {
       allow_photos_public: false,
       anonymization_level: "medium",
       public_excerpt_zh: publicExcerpt,
+      emotion,
+      severity,
+      ai_summary: ai.ai_summary,
+      ai_risk: ai.ai_risk,
+      ai_care_advice: ai.ai_care_advice,
+      ai_keywords: ai.ai_keywords,
+      ai_score: ai.ai_score,
+      ai_symptom_shift: ai.ai_symptom_shift,
     };
 
     // write JSON file

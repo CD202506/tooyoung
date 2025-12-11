@@ -46,12 +46,20 @@ export type CaseRecord = {
 
   content?: LocaleField | string | null;
   content_zh?: string;
+  emotion?: string;
+  severity?: number;
 
   tags?: string[];
   photos?: string[] | { file?: string; filename?: string; caption?: string }[];
   attachments?: string[];
   public_excerpt_zh?: string;
   symptom_categories?: string[];
+  ai_summary?: string;
+  ai_risk?: string;
+  ai_care_advice?: string;
+  ai_keywords?: string[];
+  ai_score?: number;
+  ai_symptom_shift?: string;
 
   created_at?: string;
   updated_at?: string;

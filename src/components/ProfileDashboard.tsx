@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardDocumentListIcon, ChartBarIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { ProfileMiniInsights } from "@/components/ProfileMiniInsights";
 
 export type DashboardProfile = {
   display_name?: string | null;
@@ -41,19 +41,19 @@ export function ProfileDashboard({ profile, events }: { profile: DashboardProfil
       title: "事件記錄",
       description: "查看所有紀錄的事件，依時間排序。",
       href: "/cases",
-      icon: <ClipboardDocumentListIcon className="h-5 w-5 text-neutral-500" />,
+      icon: <span className="text-lg">🗂️</span>,
     },
     {
       title: "症狀統計",
       description: "統計各項症狀出現頻率，從資料找趨勢。",
       href: "/symptoms",
-      icon: <ChartBarIcon className="h-5 w-5 text-neutral-500" />,
+      icon: <span className="text-lg">📊</span>,
     },
     {
       title: "病程時間軸",
       description: "沿著時間軸查看病程演變與重要事件。",
       href: "/timeline",
-      icon: <ClockIcon className="h-5 w-5 text-neutral-500" />,
+      icon: <span className="text-lg">⏱️</span>,
     },
   ];
 
@@ -94,6 +94,8 @@ export function ProfileDashboard({ profile, events }: { profile: DashboardProfil
           </div>
         ))}
       </section>
+
+      <ProfileMiniInsights events={events} />
     </div>
   );
 }

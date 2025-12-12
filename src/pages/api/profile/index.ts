@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import type { CaseProfile } from "@/types/profile";
 import { loadProfile } from "@/utils/profileStore";
 import { CaseRecord } from "@/types/case";
@@ -43,12 +40,12 @@ function loadShareMeta() {
   }
 }
 
-export async function GET() {
+async function handleGet(res: NextApiResponse) {
   try {
     const cases = loadCases();
     const profile = normalizeProfile(loadProfile(cases) as Partial<CaseProfile>, cases);
     const share = loadShareMeta();
-    return NextResponse.json({
+    return res.status(200).json({
       ok: true,
       profile: {
         ...profile,
@@ -58,6 +55,18 @@ export async function GET() {
     });
   } catch (error) {
     console.error("profile get error", error);
-    return NextResponse.json({ ok: false, error: "Failed to load profile" }, { status: 500 });
+    return res.status(500).json({ ok: false, error: "Failed to load profile" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

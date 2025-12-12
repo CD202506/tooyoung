@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "node:fs";
 import path from "node:path";
 import { CaseRecord } from "@/types/case";
@@ -182,7 +179,7 @@ function buildAutoNotes(params: {
   ];
 }
 
-export async function GET() {
+async function handleGet(res: NextApiResponse) {
   try {
     const cases = loadCases();
     const scales = await getLatestScales(20);
@@ -216,6 +213,18 @@ export async function GET() {
     });
   } catch (error) {
     console.error("visit-brief api error", error);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ ok: false, error: "internal_error" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

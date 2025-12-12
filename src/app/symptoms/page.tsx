@@ -1,13 +1,18 @@
-import path from "node:path";
-import Database from "better-sqlite3";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { SymptomOverviewPage, SymptomEvent } from "@/components/SymptomOverviewPage";
 
 type SearchParams = {
   case_id?: string;
 };
 
-function getEvents(caseId: number): SymptomEvent[] {
-  const dbPath = path.join(process.cwd(), "db", "tooyoung.db");
+async function getEvents(caseId: number): Promise<SymptomEvent[]> {
+  if (process.env.NEXT_PHASE === "phase-production-build") return [];
+
+  const path = await import("node:path");
+  const { default: Database } = await import("better-sqlite3");
+  const dbPath = path.default.join(process.cwd(), "db", "tooyoung.db");
   const db = new Database(dbPath);
   try {
     const hasSymptoms = db
@@ -52,7 +57,7 @@ export default async function SymptomsPage({
   searchParams: SearchParams;
 }) {
   const caseId = Number(searchParams?.case_id) || 1;
-  const events = getEvents(caseId);
+  const events = await getEvents(caseId);
 
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-900">

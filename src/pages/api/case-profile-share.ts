@@ -1,19 +1,17 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "node:crypto";
 import path from "node:path";
 import Database from "better-sqlite3";
 
 const DB_PATH = path.join(process.cwd(), "db", "tooyoung.db");
-const SHARE_BASE = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || "http://localhost:3000";
+const SHARE_BASE =
+  process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
 function generateToken() {
   return crypto.randomBytes(16).toString("hex"); // 32 hex chars
 }
 
-export async function POST() {
+async function handlePOST(_req: NextApiRequest, res: NextApiResponse) {
   const db = new Database(DB_PATH);
   try {
     const profile = db
@@ -21,11 +19,11 @@ export async function POST() {
       .get() as { id: number; privacy_level: string } | undefined;
 
     if (!profile) {
-      return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
+      return res.status(404).json({ error: "profile_not_found" });
     }
 
     if (profile.privacy_level === "private") {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      return res.status(403).json({ error: "forbidden" });
     }
 
     const token = generateToken();
@@ -39,7 +37,7 @@ export async function POST() {
     `,
     ).run({ token, now, id: profile.id });
 
-    return NextResponse.json({
+    return res.status(200).json({
       share_url: `${SHARE_BASE}/share/${token}`,
     });
   } finally {
@@ -47,7 +45,7 @@ export async function POST() {
   }
 }
 
-export async function DELETE() {
+async function handleDELETE(_req: NextApiRequest, res: NextApiResponse) {
   const db = new Database(DB_PATH);
   try {
     const profile = db
@@ -55,7 +53,7 @@ export async function DELETE() {
       .get() as { id: number } | undefined;
 
     if (!profile) {
-      return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
+      return res.status(404).json({ error: "profile_not_found" });
     }
 
     const now = new Date().toISOString();
@@ -68,8 +66,25 @@ export async function DELETE() {
     `,
     ).run({ now, id: profile.id });
 
-    return NextResponse.json({ revoked: true });
+    return res.status(200).json({ revoked: true });
   } finally {
     db.close();
+  }
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    if (req.method === "POST") {
+      return await handlePOST(req, res);
+    }
+    if (req.method === "DELETE") {
+      return await handleDELETE(req, res);
+    }
+
+    res.setHeader("Allow", ["POST", "DELETE"]);
+    return res.status(405).json({ error: "Method Not Allowed" });
+  } catch (err) {
+    console.error("case-profile-share api error", err);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 }

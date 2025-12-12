@@ -11,7 +11,10 @@ import { CaseRecord } from "@/types/case";
 import { normalizeCase } from "@/lib/normalizeCase";
 import { normalizeVisibility } from "@/lib/caseVisibility";
 
-const db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
+const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
+
+const db: Database =
+  IS_BUILD ? (null as unknown as Database) : new Database(path.join(process.cwd(), "db", "tooyoung.db"));
 
 function toIso(date: string, time: string) {
   return `${date}T${time}:00+08:00`;
@@ -79,6 +82,10 @@ export async function GET(
   request: NextRequest,
   context: any,
 ) {
+  if (IS_BUILD) {
+    return new Response(null, { status: 204 });
+  }
+
   const { slug } = context.params;
 
   if (slug === "example-slug") {

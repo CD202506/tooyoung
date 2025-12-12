@@ -196,7 +196,7 @@ async function handleGet(res: NextApiResponse) {
       stageLabel,
     });
 
-    return NextResponse.json({
+    return res.status(200).json({
       ok: true,
       profile,
       scales: {

@@ -64,12 +64,14 @@ function toWebRequest(req: NextApiRequest) {
   const body =
     req.method === "GET" || req.method === "HEAD" ? undefined : (req as unknown as BodyInit);
 
-  return new Request(url, {
-    method: req.method,
-    headers,
-    body,
-    duplex: "half",
-  });
+  return new Request(
+    url,
+    {
+      method: req.method,
+      headers,
+      body,
+    } as RequestInit,
+  );
 }
 
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {

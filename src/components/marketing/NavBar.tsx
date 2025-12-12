@@ -11,9 +11,9 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
-function isActive(pathname: string, href: string) {
+function isActive(pathname: string | null, href: string) {
   if (href === "/") return pathname === "/";
-  return pathname.startsWith(href);
+  return pathname?.startsWith(href) ?? false;
 }
 
 export function NavBar() {

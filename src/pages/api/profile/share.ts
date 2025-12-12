@@ -28,7 +28,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const regenerate = body.regenerate_token === true;
 
     if (!VALID_SHARE.has(shareMode)) {
-      return NextResponse.json({ error: "invalid_share_mode" }, { status: 400 });
+      return res.status(400).json({ error: "invalid_share_mode" });
     }
 
     const current = db
@@ -38,7 +38,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       .get(profileId) as { share_mode?: string; share_token?: string | null } | undefined;
 
     if (!current) {
-      return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
+      return res.status(404).json({ error: "profile_not_found" });
     }
 
     let nextToken = current.share_token ?? null;

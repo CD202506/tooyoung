@@ -186,7 +186,7 @@ async function handleGet(res: NextApiResponse) {
     const topSymptoms = computeTopSymptoms(recentEvents).slice(0, 3);
     const worseningSymptoms = computeWorseningSymptoms(cases, recentDays);
 
-    return NextResponse.json({
+    return res.status(200).json({
       profile,
       latestScale,
       recentEvents,

@@ -1,15 +1,12 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-import { NextResponse } from "next/server";
-
-export async function GET(req: Request) {
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { searchParams } = new URL(req.url);
-    const q = (searchParams.get("q") ?? "").trim();
+    const qParam = Array.isArray(req.query.q) ? req.query.q[0] : req.query.q;
+    const q = (qParam ?? "").trim();
 
     if (!q) {
-      return NextResponse.json({ query: q, results: [] });
+      return res.status(200).json({ query: q, results: [] });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
@@ -36,7 +33,7 @@ export async function GET(req: Request) {
 
     if (matchedIds.length === 0) {
       db.close();
-      return NextResponse.json({ query: q, results: [] });
+      return res.status(200).json({ query: q, results: [] });
     }
 
     const ids = matchedIds.map((row) => row.id);
@@ -66,12 +63,21 @@ export async function GET(req: Request) {
     }[];
 
     db.close();
-    return NextResponse.json({ query: q, results: rows });
+    return res.status(200).json({ query: q, results: rows });
   } catch (error) {
     console.error("Failed to search cases:", error);
-    return NextResponse.json(
-      { error: "Failed to search cases" },
-      { status: 500 },
-    );
+    return res.status(500).json({ error: "Failed to search cases" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(req, res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

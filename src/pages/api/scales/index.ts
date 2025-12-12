@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import {
   getAllScales,
   insertScale,
@@ -21,16 +18,13 @@ function toPayload(record: ClinicalScaleRecord) {
   return { ...record, payload };
 }
 
-export async function GET() {
+async function handleGet(res: NextApiResponse) {
   try {
     const records = await getAllScales();
-    return NextResponse.json({
-      ok: true,
-      data: records.map(toPayload),
-    });
+    return res.status(200).json({ ok: true, data: records.map(toPayload) });
   } catch (error) {
     console.error("scales list error", error);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ ok: false, error: "internal_error" });
   }
 }
 
@@ -42,14 +36,14 @@ type NewPayload = {
   note?: string | null;
 };
 
-export async function POST(req: Request) {
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const body = (await req.json()) as NewPayload;
+    const body = (req.body ?? {}) as NewPayload;
     if (!body.scale_date || !body.scale_type) {
-      return NextResponse.json({ ok: false, error: "missing fields" }, { status: 400 });
+      return res.status(400).json({ ok: false, error: "missing fields" });
     }
     if (!["MMSE", "CDR", "OTHER"].includes(body.scale_type)) {
-      return NextResponse.json({ ok: false, error: "invalid scale_type" }, { status: 400 });
+      return res.status(400).json({ ok: false, error: "invalid scale_type" });
     }
     const payloadJson =
       body.payload === undefined ? null : JSON.stringify(body.payload);
@@ -64,9 +58,24 @@ export async function POST(req: Request) {
       payload_json: payloadJson,
       note: body.note ?? null,
     });
-    return NextResponse.json({ ok: true, data: toPayload(inserted) });
+    return res.status(200).json({ ok: true, data: toPayload(inserted) });
   } catch (error) {
     console.error("scales new error", error);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ ok: false, error: "internal_error" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(res);
+  }
+  if (req.method === "POST") {
+    return handlePost(req, res);
+  }
+
+  res.setHeader("Allow", ["GET", "POST"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

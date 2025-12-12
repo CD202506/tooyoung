@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { ClinicalScaleRecord } from "@/types/clinicalScale";
 import { getAllScales } from "@/utils/clinicalScaleStore";
 
@@ -71,14 +68,26 @@ function buildCdr(scales: ClinicalScaleRecord[]) {
   };
 }
 
-export async function GET() {
+async function handleGet(res: NextApiResponse) {
   try {
     const records = await getAllScales();
     const mmse = buildMmse(records);
     const cdr = buildCdr(records);
-    return NextResponse.json({ ok: true, mmse, cdr });
+    return res.status(200).json({ ok: true, mmse, cdr });
   } catch (error) {
     console.error("scales trend error", error);
-    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ ok: false, error: "internal_error" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

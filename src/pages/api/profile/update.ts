@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import type { CaseProfile } from "@/types/profile";
 import { normalizeProfile } from "@/lib/normalizeProfile";
 import { saveProfile } from "@/utils/profileStore";
@@ -116,12 +113,12 @@ function sanitizeInput(body: Partial<CaseProfile>): Partial<CaseProfile> {
   };
 }
 
-export async function POST(request: Request) {
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const body = (await request.json()) as Partial<CaseProfile>;
+    const body = (req.body ?? {}) as Partial<CaseProfile>;
     const error = validateInput(body);
     if (error) {
-      return NextResponse.json({ ok: false, error }, { status: 400 });
+      return res.status(400).json({ ok: false, error });
     }
 
     const sanitized = sanitizeInput(body);
@@ -129,10 +126,10 @@ export async function POST(request: Request) {
     const normalized = normalizeProfile(sanitized, cases);
     const saved = saveProfile(normalized as Partial<CaseProfile>, cases);
 
-    return NextResponse.json({ ok: true, profile: saved });
+    return res.status(200).json({ ok: true, profile: saved });
   } catch (err) {
     console.error("profile update error", err);
-    return NextResponse.json({ ok: false, error: "Internal error" }, { status: 500 });
+    return res.status(500).json({ ok: false, error: "Internal error" });
   }
 }
 
@@ -151,4 +148,16 @@ function loadCases(): CaseRecord[] {
     }
   }
   return list;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "POST" || req.method === "PATCH") {
+    return handlePost(req, res);
+  }
+
+  res.setHeader("Allow", ["POST", "PATCH"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

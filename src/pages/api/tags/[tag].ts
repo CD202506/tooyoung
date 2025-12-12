@@ -1,20 +1,9 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-import { NextRequest, NextResponse } from "next/server";
-
-type Params = { tag: string };
-
-export async function GET(
-  _req: NextRequest,
-  context: any,
-) {
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const params = context?.params as Params | Promise<Params>;
-    const tag =
-      params && typeof (params as Promise<Params>).then === "function"
-        ? (await params).tag
-        : (params as Params | undefined)?.tag;
+    const tagParam = Array.isArray(req.query.tag) ? req.query.tag[0] : req.query.tag;
+    const tag = tagParam;
     // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
     const Database = require("better-sqlite3");
     const db = new Database("db/tooyoung.db");
@@ -38,7 +27,7 @@ export async function GET(
 
     if (caseIds.length === 0) {
       db.close();
-      return NextResponse.json({ tag, cases: [] });
+      return res.status(200).json({ tag, cases: [] });
     }
 
     const ids = caseIds.map((row) => row.case_id);
@@ -71,12 +60,21 @@ export async function GET(
     }[];
 
     db.close();
-    return NextResponse.json({ tag, cases: rows });
+    return res.status(200).json({ tag, cases: rows });
   } catch (error) {
     console.error("Failed to fetch cases by tag:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch cases by tag" },
-      { status: 500 },
-    );
+    return res.status(500).json({ error: "Failed to fetch cases by tag" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(req, res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

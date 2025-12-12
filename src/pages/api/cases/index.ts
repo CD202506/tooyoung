@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { CaseRecord } from "@/types/case";
 import { normalizeCase } from "@/lib/normalizeCase";
 import Database from "better-sqlite3";
@@ -21,11 +18,14 @@ type CaseRow = {
   share_token?: string | null;
 };
 
-export async function GET(request: Request) {
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { searchParams } = new URL(request.url);
-    const limitParam = searchParams.get("limit");
-    const caseIdParam = searchParams.get("case_id");
+    const limitParam = Array.isArray(req.query.limit)
+      ? req.query.limit[0]
+      : req.query.limit;
+    const caseIdParam = Array.isArray(req.query.case_id)
+      ? req.query.case_id[0]
+      : req.query.case_id;
     const limitValue =
       limitParam && Number.isFinite(Number(limitParam))
         ? Math.max(1, Number(limitParam))
@@ -134,12 +134,28 @@ export async function GET(request: Request) {
       } as CaseRecord);
     });
 
-    return NextResponse.json({ cases: normalized });
+    return res.status(200).json({ cases: normalized });
   } catch (error) {
     console.error("Failed to fetch cases:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch cases" },
-      { status: 500 },
-    );
+    return res.status(500).json({ error: "Failed to fetch cases" });
   }
+}
+
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
+  return res.status(405).json({ error: "Method Not Allowed" });
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(req, res);
+  }
+  if (req.method === "POST") {
+    return handlePost(req, res);
+  }
+
+  res.setHeader("Allow", ["GET", "POST"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

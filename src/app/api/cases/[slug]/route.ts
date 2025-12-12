@@ -13,8 +13,7 @@ import { normalizeVisibility } from "@/lib/caseVisibility";
 
 const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
 
-const db: Database =
-  IS_BUILD ? (null as unknown as Database) : new Database(path.join(process.cwd(), "db", "tooyoung.db"));
+type Db = InstanceType<typeof Database>;
 
 function toIso(date: string, time: string) {
   return `${date}T${time}:00+08:00`;
@@ -31,7 +30,7 @@ function buildIdFromNow() {
   return `${y}-${m}-${day}T${hh}-${mm}-${ss}-001`;
 }
 
-async function ensureExampleCase(): Promise<CaseRecord | null> {
+async function ensureExampleCase(db: Db): Promise<CaseRecord | null> {
   try {
     const casesDir = path.join(process.cwd(), "data", "cases");
     await fsp.mkdir(casesDir, { recursive: true });
@@ -86,45 +85,55 @@ export async function GET(
     return new Response(null, { status: 204 });
   }
 
-  const { slug } = context.params;
+  const db: Db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
+  try {
+    const { slug } = context.params;
 
-  if (slug === "example-slug") {
-    const created = await ensureExampleCase();
-    if (created) return NextResponse.json(created, { status: 200 });
-    return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    if (slug === "example-slug") {
+      const created = await ensureExampleCase(db);
+      if (created) return NextResponse.json(created, { status: 200 });
+      return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    }
+
+    const row = db.prepare("SELECT * FROM cases_index WHERE slug = ?").get(slug);
+
+    if (!row) {
+      return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    }
+
+    const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
+    if (!fs.existsSync(casePath)) {
+      return NextResponse.json({ error: "JSON file not found" }, { status: 404 });
+    }
+
+    const raw = fs.readFileSync(casePath, "utf-8");
+    const json = JSON.parse(raw);
+
+    return NextResponse.json(
+      normalizeCase({
+        ...(json as CaseRecord),
+        visibility: (json as CaseRecord).visibility ?? (row as any).visibility,
+        case_id: (row as any).case_id ?? (json as CaseRecord).case_id ?? 1,
+        share_mode: (row as any).share_mode ?? (json as CaseRecord).share_mode ?? "private",
+        share_token:
+          (row as any).share_token ?? (json as CaseRecord).share_token ?? null,
+      }),
+      { status: 200 },
+    );
+  } finally {
+    db.close();
   }
-
-  const row = db.prepare("SELECT * FROM cases_index WHERE slug = ?").get(slug);
-
-  if (!row) {
-    return NextResponse.json({ error: "Case not found" }, { status: 404 });
-  }
-
-  const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
-  if (!fs.existsSync(casePath)) {
-    return NextResponse.json({ error: "JSON file not found" }, { status: 404 });
-  }
-
-  const raw = fs.readFileSync(casePath, "utf-8");
-  const json = JSON.parse(raw);
-
-  return NextResponse.json(
-    normalizeCase({
-      ...(json as CaseRecord),
-      visibility: (json as CaseRecord).visibility ?? (row as any).visibility,
-      case_id: (row as any).case_id ?? (json as CaseRecord).case_id ?? 1,
-      share_mode: (row as any).share_mode ?? (json as CaseRecord).share_mode ?? "private",
-      share_token:
-        (row as any).share_token ?? (json as CaseRecord).share_token ?? null,
-    }),
-    { status: 200 },
-  );
 }
 
 export async function PUT(
   request: NextRequest,
   context: any,
 ) {
+  if (IS_BUILD) {
+    return new Response(null, { status: 204 });
+  }
+
+  const db: Db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
   try {
     const { slug } = context.params;
     const form = await request.formData();
@@ -300,6 +309,8 @@ export async function PUT(
       { error: err?.message || "更新失敗" },
       { status: 500 },
     );
+  } finally {
+    db.close();
   }
 }
 
@@ -307,6 +318,11 @@ export async function DELETE(
   request: NextRequest,
   context: any,
 ) {
+  if (IS_BUILD) {
+    return new Response(null, { status: 204 });
+  }
+
+  const db: Db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
   try {
     const { slug } = context.params;
     if (!slug) {

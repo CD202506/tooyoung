@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { CaseRecord } from "@/types/case";
 import { normalizeCase } from "@/lib/normalizeCase";

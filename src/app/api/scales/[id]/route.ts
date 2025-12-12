@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { getScaleById, updateScale } from "@/utils/clinicalScaleStore";
 import { scoreMMSE, scoreCDR } from "@/lib/scaleScoring";

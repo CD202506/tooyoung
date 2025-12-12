@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { ClinicalScaleType } from "@/types/clinicalScale";
 import { insertScale } from "@/utils/clinicalScaleStore";

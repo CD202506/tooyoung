@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import type { CaseProfile } from "@/types/profile";
 import { loadProfile } from "@/utils/profileStore";

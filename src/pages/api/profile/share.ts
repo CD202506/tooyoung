@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import path from "node:path";
 import crypto from "node:crypto";
 import Database from "better-sqlite3";
@@ -17,10 +14,10 @@ function generateToken() {
   return crypto.randomBytes(24).toString("hex");
 }
 
-export async function POST(request: Request) {
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const db = getDb();
   try {
-    const body = (await request.json()) as {
+    const body = (req.body ?? {}) as {
       profile_id?: number;
       share_mode: "private" | "protected" | "public";
       regenerate_token?: boolean;
@@ -69,7 +66,7 @@ export async function POST(request: Request) {
       id: profileId,
     });
 
-    return NextResponse.json({
+    return res.status(200).json({
       profile_id: profileId,
       share_mode: shareMode,
       share_token: shareMode === "protected" ? nextToken : null,
@@ -81,8 +78,55 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("profile share update error", error);
-    return NextResponse.json({ error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ error: "internal_error" });
   } finally {
     db.close();
   }
+}
+
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
+  const db = getDb();
+  try {
+    const body = (req.body ?? {}) as { profile_id?: number };
+    const profileId = body.profile_id ?? 1;
+
+    const now = new Date().toISOString();
+    db.prepare(
+      `
+      UPDATE case_profiles
+      SET share_mode = 'private',
+          share_token = NULL,
+          updated_at = @now
+      WHERE id = @id
+    `,
+    ).run({ now, id: profileId });
+
+    return res.status(200).json({
+      profile_id: profileId,
+      share_mode: "private",
+      share_token: null,
+      share_url: null,
+      updated: true,
+    });
+  } catch (error) {
+    console.error("profile share delete error", error);
+    return res.status(500).json({ error: "internal_error" });
+  } finally {
+    db.close();
+  }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "POST") {
+    return handlePost(req, res);
+  }
+  if (req.method === "DELETE") {
+    return handleDelete(req, res);
+  }
+
+  res.setHeader("Allow", ["POST", "DELETE"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

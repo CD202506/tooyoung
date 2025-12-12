@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import fs from "fs";
 import { promises as fsp } from "fs";
@@ -62,7 +59,6 @@ async function ensureExampleCase(db: Db): Promise<CaseRecord | null> {
 
     await fsp.writeFile(filePath, JSON.stringify(payload, null, 2), "utf8");
 
-    // Best effort sync; 即使失敗也先回 200，不擋讀取
     try {
       db.prepare("DELETE FROM cases_index WHERE slug = ?").run("example-slug");
       await syncCasesToSQLite();
@@ -77,39 +73,35 @@ async function ensureExampleCase(db: Db): Promise<CaseRecord | null> {
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  context: any,
-) {
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   if (IS_BUILD) {
-    return new Response(null, { status: 204 });
+    return res.status(204).end();
   }
 
+  const slug = Array.isArray(req.query.slug) ? req.query.slug[0] : req.query.slug;
   const db: Db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
   try {
-    const { slug } = context.params;
-
     if (slug === "example-slug") {
       const created = await ensureExampleCase(db);
-      if (created) return NextResponse.json(created, { status: 200 });
-      return NextResponse.json({ error: "Case not found" }, { status: 404 });
+      if (created) return res.status(200).json(created);
+      return res.status(404).json({ error: "Case not found" });
     }
 
     const row = db.prepare("SELECT * FROM cases_index WHERE slug = ?").get(slug);
 
     if (!row) {
-      return NextResponse.json({ error: "Case not found" }, { status: 404 });
+      return res.status(404).json({ error: "Case not found" });
     }
 
     const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
     if (!fs.existsSync(casePath)) {
-      return NextResponse.json({ error: "JSON file not found" }, { status: 404 });
+      return res.status(404).json({ error: "JSON file not found" });
     }
 
     const raw = fs.readFileSync(casePath, "utf-8");
     const json = JSON.parse(raw);
 
-    return NextResponse.json(
+    return res.status(200).json(
       normalizeCase({
         ...(json as CaseRecord),
         visibility: (json as CaseRecord).visibility ?? (row as any).visibility,
@@ -118,61 +110,55 @@ export async function GET(
         share_token:
           (row as any).share_token ?? (json as CaseRecord).share_token ?? null,
       }),
-      { status: 200 },
     );
   } finally {
     db.close();
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  context: any,
-) {
+async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   if (IS_BUILD) {
-    return new Response(null, { status: 204 });
+    return res.status(204).end();
   }
 
+  const slug = Array.isArray(req.query.slug) ? req.query.slug[0] : req.query.slug;
   const db: Db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
   try {
-    const { slug } = context.params;
-    const form = await request.formData();
-    const date = (form.get("date") as string) || "";
-    const time = (form.get("time") as string) || "";
-    const titleInput = ((form.get("title") as string) || "").trim();
-    const summaryInput = ((form.get("summary") as string) || "").trim();
-    // 用 contentInput 即使為空字串也覆寫舊資料，才能清空內容
-    const rawContent = form.get("content");
+    const form = await req.body;
+    const formData = form as unknown as FormData;
+
+    const date = (formData.get("date") as string) || "";
+    const time = (formData.get("time") as string) || "";
+    const titleInput = ((formData.get("title") as string) || "").trim();
+    const summaryInput = ((formData.get("summary") as string) || "").trim();
+    const rawContent = formData.get("content");
     const contentProvided = rawContent !== null;
     const contentInput = rawContent ? (rawContent as string).trim() : "";
     const visibilityInput = normalizeVisibility(
-      (form.get("visibility") as string | null) as any,
+      (formData.get("visibility") as string | null) as any,
     );
-    const publicExcerpt = ((form.get("public_excerpt_zh") as string) || "").trim();
+    const publicExcerpt = ((formData.get("public_excerpt_zh") as string) || "").trim();
     const removedPhotos = JSON.parse(
-      ((form.get("removedPhotos") as string) || "[]").toString(),
+      ((formData.get("removedPhotos") as string) || "[]").toString(),
     ) as string[];
     const removedAttachments = JSON.parse(
-      ((form.get("removedAttachments") as string) || "[]").toString(),
+      ((formData.get("removedAttachments") as string) || "[]").toString(),
     ) as string[];
 
     if (!date || !time) {
-      return NextResponse.json(
-        { error: "缺少日期或時間" },
-        { status: 400 },
-      );
+      return res.status(400).json({ error: "缺少日期或時間" });
     }
 
     const row = db.prepare("SELECT * FROM cases_index WHERE slug = ?").get(slug);
     if (!row) {
-      return NextResponse.json({ error: "Case not found" }, { status: 404 });
+      return res.status(404).json({ error: "Case not found" });
     }
 
     const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
     const exists = fs.existsSync(casePath);
     const existing: CaseRecord = exists
       ? JSON.parse(fs.readFileSync(casePath, "utf-8"))
-      : {} as any;
+      : ({} as any);
 
     const event_datetime = toIso(date, time);
     const summaryAuto =
@@ -180,7 +166,7 @@ export async function PUT(
       (contentInput ? contentInput.slice(0, 120) : titleInput.slice(0, 120));
     const shortSentence = contentInput.split("\n")[0] || titleInput || summaryAuto;
 
-    const baseDir = path.join(process.cwd(), "public", "images", "cases", slug);
+    const baseDir = path.join(process.cwd(), "public", "images", "cases", slug as string);
     await fsp.mkdir(baseDir, { recursive: true });
 
     const photos = Array.isArray(existing.photos)
@@ -193,7 +179,7 @@ export async function PUT(
       ? existing.attachments.filter((a) => !removedAttachments.includes(a))
       : [];
 
-    const files = form.getAll("files") as File[];
+    const files = formData.getAll("files") as File[];
     let photoIndex = photos.length + 1;
     for (const file of files) {
       if (!file || typeof file.arrayBuffer !== "function") continue;
@@ -217,7 +203,7 @@ export async function PUT(
     const updated: CaseRecord = normalizeCase({
       ...existing,
       id: row.id,
-      slug: row.slug || slug,
+      slug: row.slug || (slug as string),
       event_datetime,
       recorded_at: existing.recorded_at || event_datetime,
       title: {
@@ -302,49 +288,40 @@ export async function PUT(
       console.warn("sync to sqlite failed after update", err);
     }
 
-    return NextResponse.json({ ok: true, id: row.id, slug });
+    return res.status(200).json({ ok: true, id: row.id, slug });
   } catch (err: any) {
     console.error("update case error", err);
-    return NextResponse.json(
-      { error: err?.message || "更新失敗" },
-      { status: 500 },
-    );
+    return res.status(500).json({ error: err?.message || "更新失敗" });
   } finally {
     db.close();
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: any,
-) {
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
   if (IS_BUILD) {
-    return new Response(null, { status: 204 });
+    return res.status(204).end();
   }
 
+  const slug = Array.isArray(req.query.slug) ? req.query.slug[0] : req.query.slug;
   const db: Db = new Database(path.join(process.cwd(), "db", "tooyoung.db"));
   try {
-    const { slug } = context.params;
     if (!slug) {
-      return NextResponse.json({ error: "missing slug" }, { status: 400 });
+      return res.status(400).json({ error: "missing slug" });
     }
 
     const row = db.prepare("SELECT * FROM cases_index WHERE slug = ?").get(slug);
     const id = row?.id || slug;
 
-    // delete json file
     const casePath = path.join(process.cwd(), "data", "cases", `${id}.json`);
     if (fs.existsSync(casePath)) {
       await fsp.unlink(casePath);
     }
 
-    // delete images folder
-    const imgDir = path.join(process.cwd(), "public", "images", "cases", slug);
+    const imgDir = path.join(process.cwd(), "public", "images", "cases", slug as string);
     if (fs.existsSync(imgDir)) {
       await fsp.rm(imgDir, { recursive: true, force: true });
     }
 
-    // delete db rows
     const delIndex = db.prepare("DELETE FROM cases_index WHERE slug = ?");
     const delTags = db.prepare("DELETE FROM tags_index WHERE case_id = ?");
     const delFts = db.prepare("DELETE FROM cases_fts WHERE id = ?");
@@ -354,12 +331,26 @@ export async function DELETE(
       delIndex.run(slug);
     })();
 
-    return NextResponse.json({ ok: true, slug, id });
+    return res.status(200).json({ ok: true, slug, id });
   } catch (err: any) {
     console.error("delete case error", err);
-    return NextResponse.json(
-      { error: err?.message || "刪除失敗" },
-      { status: 500 },
-    );
+    return res.status(500).json({ error: err?.message || "刪除失敗" });
+  } finally {
+    db.close();
   }
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "GET") {
+    return handleGet(req, res);
+  }
+  if (req.method === "PUT") {
+    return handlePut(req, res);
+  }
+  if (req.method === "DELETE") {
+    return handleDelete(req, res);
+  }
+
+  res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
+  return res.status(405).end();
 }

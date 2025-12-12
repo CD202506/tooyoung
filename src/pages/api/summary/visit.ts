@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import path from "node:path";
 import fs from "node:fs";
 import Database from "better-sqlite3";
@@ -164,7 +161,7 @@ function computeWorseningSymptoms(cases: CaseRecord[], recentDays: number) {
   return worsening;
 }
 
-export async function GET() {
+async function handleGet(res: NextApiResponse) {
   try {
     const profile = loadProfile();
     const cases = fetchCases();
@@ -205,6 +202,18 @@ export async function GET() {
     });
   } catch (error) {
     console.error("visit summary api error", error);
-    return NextResponse.json({ error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ error: "internal_error" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

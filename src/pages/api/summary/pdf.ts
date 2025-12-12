@@ -1,15 +1,12 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 import { getCasesInRange } from "@/lib/caseQueries";
 
-export async function GET(req: Request) {
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { searchParams } = new URL(req.url);
-    const days = parseInt(searchParams.get("days") || "30", 10);
+    const daysParam = Array.isArray(req.query.days) ? req.query.days[0] : req.query.days;
+    const days = parseInt(daysParam || "30", 10);
 
     const pdfkitData = path.join(
       process.cwd(),
@@ -69,15 +66,23 @@ export async function GET(req: Request) {
 
     const pdfBuffer = Buffer.concat(chunks);
 
-    return new NextResponse(pdfBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="summary-${days}.pdf"`,
-      },
-    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="summary-${days}.pdf"`);
+    return res.status(200).end(pdfBuffer);
   } catch (err) {
     console.error("PDF export error:", err);
-    return new NextResponse("PDF generation failed", { status: 500 });
+    return res.status(500).end("PDF generation failed");
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(req, res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 import { CaseRecord } from "@/types/case";
@@ -29,14 +26,26 @@ function loadCases(): CaseRecord[] {
   return list;
 }
 
-export async function GET() {
+async function handleGet(res: NextApiResponse) {
   try {
     const profile = loadProfile();
     const cases = loadCases();
     const clinicalSummary = buildClinicalSummary(profile, cases, 60);
-    return NextResponse.json({ profile, clinicalSummary });
+    return res.status(200).json({ profile, clinicalSummary });
   } catch (error) {
     console.error("clinical summary error", error);
-    return NextResponse.json({ error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ error: "internal_error" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "GET") {
+    return handleGet(res);
+  }
+
+  res.setHeader("Allow", ["GET"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

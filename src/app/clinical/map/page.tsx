@@ -5,6 +5,8 @@ import { symptomCategories } from "@/lib/symptomCategories";
 import { CaseRecord } from "@/types/case";
 import { StageDetectResult } from "@/lib/stageDetector";
 
+export const dynamic = "force-dynamic";
+
 type MapApiResponse = {
   ok: boolean;
   cases: CaseRecord[];

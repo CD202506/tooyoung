@@ -15,8 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TooYoung｜時空迷航雜記",
-  description: "TooYoung project workspace",
+  title: "Tooyoung — Memory & Care Assistant",
+  description: "一個為家庭照護者打造的年輕型失智照護工具與知識平台。",
+  openGraph: {
+    title: "Tooyoung — Memory & Care Assistant",
+    description: "陪伴、記錄、理解。全方位的照護者工具。",
+    url: "https://tooyoung.site",
+    siteName: "Tooyoung",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "zh_TW",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

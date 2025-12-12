@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import path from "node:path";
 import Database from "better-sqlite3";
 import type { CaseProfile } from "@/types/profile";
@@ -13,13 +10,17 @@ const VALID_PRIVACY = new Set<CaseProfile["privacy_mode"]>([
   "masked",
   "private",
 ]);
-const VALID_SHARE = new Set<NonNullable<CaseProfile["share_mode"]>>(["private", "protected", "public"]);
+const VALID_SHARE = new Set<NonNullable<CaseProfile["share_mode"]>>([
+  "private",
+  "protected",
+  "public",
+]);
 
 function getDb() {
   return new Database(DB_PATH);
 }
 
-export async function GET() {
+async function handleGET(_req: NextApiRequest, res: NextApiResponse) {
   const db = getDb();
   try {
     const row = db
@@ -43,10 +44,10 @@ export async function GET() {
       | undefined;
 
     if (!row) {
-      return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
+      return res.status(404).json({ error: "profile_not_found" });
     }
 
-    return NextResponse.json({
+    return res.status(200).json({
       ...row,
       share_mode: row.share_mode ?? "private",
     });
@@ -55,19 +56,19 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
+async function handlePATCH(req: NextApiRequest, res: NextApiResponse) {
   const db = getDb();
   try {
-    const body = (await request.json()) as Partial<CaseProfile>;
+    const body = (req.body || {}) as Partial<CaseProfile>;
     const privacy = body.privacy_mode;
     const shareMode = body.share_mode;
 
     if (privacy && !VALID_PRIVACY.has(privacy)) {
-      return NextResponse.json({ error: "invalid_privacy_mode" }, { status: 400 });
+      return res.status(400).json({ error: "invalid_privacy_mode" });
     }
 
     if (shareMode && !VALID_SHARE.has(shareMode)) {
-      return NextResponse.json({ error: "invalid_share_mode" }, { status: 400 });
+      return res.status(400).json({ error: "invalid_share_mode" });
     }
 
     const now = new Date().toISOString();
@@ -83,7 +84,7 @@ export async function PATCH(request: Request) {
       `,
       ).run({ privacy, now });
 
-      return NextResponse.json({ ok: true, token_revoked: true });
+      return res.status(200).json({ ok: true, token_revoked: true });
     }
 
     if (privacy) {
@@ -108,11 +109,28 @@ export async function PATCH(request: Request) {
       ).run({ share_mode: shareMode, now });
     }
 
-    return NextResponse.json({ ok: true });
+    return res.status(200).json({ ok: true });
   } catch (error) {
     console.error("case-profile PATCH error", error);
-    return NextResponse.json({ error: "internal_error" }, { status: 500 });
+    return res.status(500).json({ error: "internal_error" });
   } finally {
     db.close();
+  }
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    if (req.method === "GET") {
+      return await handleGET(req, res);
+    }
+    if (req.method === "PATCH") {
+      return await handlePATCH(req, res);
+    }
+
+    res.setHeader("Allow", ["GET", "PATCH"]);
+    return res.status(405).json({ error: "Method Not Allowed" });
+  } catch (error) {
+    console.error("case-profile api error", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 }

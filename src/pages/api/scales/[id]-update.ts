@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { updateScale, getScaleById } from "@/utils/clinicalScaleStore";
 import { scoreCDR, scoreMMSE } from "@/lib/scaleScoring";
 
@@ -11,26 +8,20 @@ type UpdatePayload = {
   note?: string | null;
 };
 
-export async function POST(request: NextRequest, context: any) {
+async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { id } = context.params;
+    const { id } = req.query;
 
-    const numericId = Number(id);
+    const numericId = Number(Array.isArray(id) ? id[0] : id);
     if (Number.isNaN(numericId)) {
-      return NextResponse.json(
-        { ok: false, error: "invalid id" },
-        { status: 400 }
-      );
+      return res.status(400).json({ ok: false, error: "invalid id" });
     }
 
-    const body = (await request.json()) as UpdatePayload;
+    const body = (req.body ?? {}) as UpdatePayload;
 
     const existing = await getScaleById(numericId);
     if (!existing) {
-      return NextResponse.json(
-        { ok: false, error: "not_found" },
-        { status: 404 }
-      );
+      return res.status(404).json({ ok: false, error: "not_found" });
     }
 
     const payloadJson =
@@ -81,12 +72,21 @@ export async function POST(request: NextRequest, context: any) {
       note: body.note === undefined ? existing.note ?? null : body.note,
     });
 
-    return NextResponse.json({ ok: true, data: updated });
+    return res.status(200).json({ ok: true, data: updated });
   } catch (error) {
     console.error("scales update error", error);
-    return NextResponse.json(
-      { ok: false, error: "internal_error" },
-      { status: 500 }
-    );
+    return res.status(500).json({ ok: false, error: "internal_error" });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method === "POST" || req.method === "PATCH" || req.method === "PUT") {
+    return handleUpdate(req, res);
+  }
+
+  res.setHeader("Allow", ["POST", "PATCH", "PUT"]);
+  return res.status(405).json({ error: "Method Not Allowed" });
 }

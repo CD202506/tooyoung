@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { promises as fs } from "fs";
 import path from "path";
 import slugify from "slugify";
@@ -47,9 +44,37 @@ function toIso(date: string, time: string) {
   return `${date}T${time}:00+08:00`;
 }
 
-export async function POST(req: Request) {
+function toWebRequest(req: NextApiRequest) {
+  const proto =
+    (req.headers["x-forwarded-proto"] as string | undefined)?.split(",")[0]?.trim() ||
+    "http";
+  const host = req.headers.host || "localhost";
+  const url = `${proto}://${host}${req.url || ""}`;
+
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (typeof value === "undefined") continue;
+    if (Array.isArray(value)) {
+      for (const v of value) headers.append(key, v);
+    } else {
+      headers.append(key, value);
+    }
+  }
+
+  const body =
+    req.method === "GET" || req.method === "HEAD" ? undefined : (req as unknown as BodyInit);
+
+  return new Request(url, {
+    method: req.method,
+    headers,
+    body,
+    duplex: "half",
+  });
+}
+
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const form = await req.formData();
+    const form = await toWebRequest(req).formData();
     const date = (form.get("date") as string) || "";
     const time = (form.get("time") as string) || "";
     const title = ((form.get("title") as string) || "").trim();
@@ -72,7 +97,7 @@ export async function POST(req: Request) {
     }
 
     if (!date || !time) {
-      return NextResponse.json({ error: "缺少日期或時間" }, { status: 400 });
+      return res.status(400).json({ error: "缺少日期或時間" });
     }
 
     const id = buildId(date, time);
@@ -170,7 +195,7 @@ export async function POST(req: Request) {
       console.warn("sync to sqlite failed, but file is saved", err);
     }
 
-    return NextResponse.json({
+    return res.status(200).json({
       ok: true,
       id,
       slug,
@@ -178,9 +203,23 @@ export async function POST(req: Request) {
     });
   } catch (err: any) {
     console.error("upload new case error", err);
-    return NextResponse.json(
-      { error: err?.message || "未知錯誤" },
-      { status: 500 }
-    );
+    return res.status(500).json({ error: err?.message || "未知錯誤" });
   }
+}
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+  return handlePost(req, res);
 }

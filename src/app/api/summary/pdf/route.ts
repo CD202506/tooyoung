@@ -6,8 +6,6 @@ import fs from "fs";
 import path from "path";
 import { getCasesInRange } from "@/lib/caseQueries";
 
-export const runtime = "nodejs";
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);

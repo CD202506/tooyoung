@@ -6,8 +6,6 @@ import { cleanOCRText, extractKeywords } from "@/lib/ocrHelpers";
 import { suggestCategoriesForCase } from "@/lib/symptomSuggest";
 import { detectEmotion, scoreSeverity, extractEmotionKeywords } from "@/lib/emotionDetect";
 
-export const runtime = "nodejs";
-
 function generateTitle(raw: string) {
   const cleaned = cleanOCRText(raw);
   if (!cleaned) return "";

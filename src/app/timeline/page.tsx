@@ -1,12 +1,24 @@
-import path from "node:path";
-import fs from "node:fs";
-import Database from "better-sqlite3";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { TimelinePage, TimelineEvent } from "@/components/TimelinePage";
 import { CaseRecord } from "@/types/case";
 import { normalizeCase } from "@/lib/normalizeCase";
 
-function loadEvents(caseId: number): TimelineEvent[] {
-  const dbPath = path.join(process.cwd(), "db", "tooyoung.db");
+const isBuild = process.env.NEXT_PHASE === "phase-production-build";
+
+type SearchParams = {
+  case_id?: string;
+};
+
+async function loadEvents(caseId: number): Promise<TimelineEvent[]> {
+  if (isBuild) return [];
+
+  const path = await import("node:path");
+  const fs = await import("node:fs");
+  const { default: Database } = await import("better-sqlite3");
+
+  const dbPath = path.default.join(process.cwd(), "db", "tooyoung.db");
   const db = new Database(dbPath);
   try {
     const rows = db
@@ -28,7 +40,7 @@ function loadEvents(caseId: number): TimelineEvent[] {
       }>;
 
     return rows.map((row) => {
-      const casePath = path.join(process.cwd(), "data", "cases", `${row.id}.json`);
+      const casePath = path.default.join(process.cwd(), "data", "cases", `${row.id}.json`);
       let merged: CaseRecord = {
         id: row.id,
         slug: row.slug,
@@ -79,9 +91,13 @@ function loadEvents(caseId: number): TimelineEvent[] {
   }
 }
 
-export default async function Timeline() {
-  const caseId = 1; // 可改為從 searchParams 讀取，需求未指定
-  const events = loadEvents(caseId);
+export default async function Timeline({
+  searchParams,
+}: {
+  searchParams?: SearchParams;
+}) {
+  const caseId = Number(searchParams?.case_id) || 1;
+  const events = await loadEvents(caseId);
 
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-900">

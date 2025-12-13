@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+/**
+ * MVP MODE：
+ * - 當 NEXT_PUBLIC_MVP_OPEN === "1"
+ * - 全站放行（不檢查 cookie）
+ * - 讓測試者可一路從公共層進到第二層
+ */
+const MVP_OPEN = process.env.NEXT_PUBLIC_MVP_OPEN === "1";
+
 const PUBLIC_PATHS = new Set([
   "/",
   "/login",
@@ -20,6 +28,11 @@ function isAllowed(cookie: string | undefined) {
 }
 
 export function middleware(req: NextRequest) {
+  // ✅ MVP 模式：全站放行
+  if (MVP_OPEN) {
+    return NextResponse.next();
+  }
+
   const cookie = req.cookies.get("tooyoung_auth")?.value;
   const allowed = isAllowed(cookie);
 

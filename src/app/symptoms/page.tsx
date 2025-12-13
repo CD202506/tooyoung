@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 import { SymptomOverviewPage, SymptomEvent } from "@/components/SymptomOverviewPage";
 
@@ -7,17 +6,31 @@ type SearchParams = {
   case_id?: string;
 };
 
+/**
+ * build / prerender 階段直接回空
+ */
+function isBuildTime() {
+  return process.env.NEXT_PHASE === "phase-production-build";
+}
+
 async function getEvents(caseId: number): Promise<SymptomEvent[]> {
-  if (process.env.NEXT_PHASE === "phase-production-build") return [];
+  if (isBuildTime()) {
+    return [];
+  }
 
   const path = await import("node:path");
-  const { default: Database } = await import("better-sqlite3");
-  const dbPath = path.default.join(process.cwd(), "db", "tooyoung.db");
+  const Database = (await import("better-sqlite3")).default;
+
+  const dbPath = path.join(process.cwd(), "db", "tooyoung.db");
   const db = new Database(dbPath);
+
   try {
     const hasSymptoms = db
-      .prepare("SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'symptom_categories'")
+      .prepare(
+        "SELECT 1 FROM pragma_table_info('cases_index') WHERE name = 'symptom_categories'",
+      )
       .get();
+
     if (!hasSymptoms) {
       db.prepare("ALTER TABLE cases_index ADD COLUMN symptom_categories TEXT").run();
     }
@@ -34,16 +47,20 @@ async function getEvents(caseId: number): Promise<SymptomEvent[]> {
 
     return rows.map((row) => {
       let symptom_categories: string[] = [];
+
       if (row.symptom_categories) {
         try {
-          const parsed = JSON.parse(row.symptom_categories) as unknown;
+          const parsed = JSON.parse(row.symptom_categories);
           if (Array.isArray(parsed)) {
-            symptom_categories = parsed.filter((v): v is string => typeof v === "string");
+            symptom_categories = parsed.filter(
+              (v): v is string => typeof v === "string",
+            );
           }
-        } catch (err) {
-          console.warn("parse symptom_categories failed", err);
+        } catch {
+          // 忽略壞資料
         }
       }
+
       return { symptom_categories };
     });
   } finally {

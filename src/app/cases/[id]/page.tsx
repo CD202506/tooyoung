@@ -34,7 +34,13 @@ export default function CaseDetailPage({ params }: PageProps) {
           </Link>
         </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-6 space-y-1 text-sm text-neutral-400">
+          <p>事件記錄：用於記錄重要行為或需要留意的狀況。</p>
+          <p>症狀統計：彙整長期觀察的狀態變化，方便快速回顧。</p>
+          <p>時間軸：將事件與症狀依時間整合檢視，對照趨勢與關鍵轉折。</p>
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           <Link
             href={`/cases/${id}/events`}
             className="rounded-xl border border-neutral-800 bg-neutral-800/60 p-4 transition hover:border-blue-500 hover:bg-neutral-800"

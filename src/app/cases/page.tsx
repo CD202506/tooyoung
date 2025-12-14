@@ -7,7 +7,9 @@ export default function CasesPage() {
       <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-semibold">個案列表</h1>
-          <p className="text-neutral-400 mt-2">Demo 版僅供展示，未連接資料庫。</p>
+          <p className="text-neutral-400 mt-2">
+            此處為示範個案，點擊可查看事件記錄、症狀統計與時間軸，協助說明實際使用流程。
+          </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

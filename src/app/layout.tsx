@@ -44,6 +44,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div className="bg-neutral-900/80 text-neutral-100 text-sm border-b border-neutral-800 px-4 py-2 text-center">
+          示範模式：目前顯示為範例資料，用於功能展示與流程說明
+        </div>
         <AppHeader />
         <main className="pb-[calc(4rem+env(safe-area-inset-bottom))] pt-4 md:pb-0">
           {children}

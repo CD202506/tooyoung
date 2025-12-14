@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-/**
- * MVP MODE：
- * - 當 NEXT_PUBLIC_MVP_OPEN === "1"
- * - 全站放行（不檢查 cookie）
- * - 讓測試者可一路從公共層進到第二層
- */
-const MVP_OPEN = process.env.NEXT_PUBLIC_MVP_OPEN === "1";
-
 const PUBLIC_PATHS = new Set([
   "/",
   "/login",
@@ -19,6 +11,8 @@ const PUBLIC_PATHS = new Set([
   "/legal/terms",
 ]);
 
+const MVP_MODE = process.env.NEXT_PUBLIC_MVP_OPEN === "1";
+
 function isAllowed(cookie: string | undefined) {
   if (!cookie) return false;
   const valid =
@@ -28,22 +22,26 @@ function isAllowed(cookie: string | undefined) {
 }
 
 export function middleware(req: NextRequest) {
-  // ✅ MVP 模式：全站放行
-  if (MVP_OPEN) {
+  // MVP 模式：全站放行
+  if (MVP_MODE) {
     return NextResponse.next();
   }
 
+  const pathname = req.nextUrl.pathname;
+
+  // 公開頁面放行
+  if (PUBLIC_PATHS.has(pathname)) {
+    return NextResponse.next();
+  }
+
+  // auth API 放行
+  if (pathname.startsWith("/api/auth/login")) {
+    return NextResponse.next();
+  }
+
+  // 登入驗證
   const cookie = req.cookies.get("tooyoung_auth")?.value;
   const allowed = isAllowed(cookie);
-
-  if (PUBLIC_PATHS.has(req.nextUrl.pathname)) {
-    return NextResponse.next();
-  }
-
-  // Allow auth route
-  if (req.nextUrl.pathname.startsWith("/api/auth/login")) {
-    return NextResponse.next();
-  }
 
   if (!allowed) {
     const url = new URL("/login", req.url);

@@ -7,3 +7,5 @@ dist/
 db/*.db
 *.db
 
+dev-clean.ps1
+dev-reset.bat

@@ -1,42 +1,36 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import { HeroSection } from "@/components/home/HeroSection";
-import { MockCaseStory } from "@/components/home/MockCaseStory";
-import { AnonymousStats } from "@/components/home/AnonymousStats";
-import { TrendPreview } from "@/components/home/TrendPreview";
-import { CTASection } from "@/components/home/CTASection";
-import { LanguageSwitcher } from "@/components/home/LanguageSwitcher";
-import { getHomeDict, HomeLang } from "@/i18n/home";
-import { NavBar } from "@/components/marketing/NavBar";
-import { Footer } from "@/components/marketing/Footer";
+import Link from "next/link";
 
 export default function HomePage() {
-  const [lang, setLang] = useState<HomeLang>("zh");
-  const dict = useMemo(() => getHomeDict(lang), [lang]);
-
   return (
-    <>
-      <NavBar />
-      <main className="min-h-screen bg-[#0b0f1a] text-indigo-50">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_30%,rgba(88,106,255,0.12),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(165,110,255,0.12),transparent_30%),radial-gradient(circle_at_50%_80%,rgba(59,130,246,0.1),transparent_35%)]" />
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 md:py-10">
-          <div className="flex items-center justify-end">
-            <LanguageSwitcher lang={lang} onChange={setLang} />
-          </div>
+    <main className="min-h-screen bg-neutral-900 text-neutral-100 flex flex-col items-center justify-center px-6 text-center">
+      <h1 className="text-3xl md:text-5xl font-bold mb-4">
+        失智，等我們發現時，通常都晚了。
+      </h1>
+      <p className="text-lg md:text-xl text-neutral-400 mb-8">
+        除了面對，只想告訴你：你並不孤單。
+      </p>
 
-          <HeroSection lang={lang} dict={dict} />
+      <div className="max-w-xl text-neutral-300 text-left space-y-2 mb-10">
+        <p>🌀 你可能正在經歷的階段：</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>大量搜尋與對照</li>
+          <li>開始懷疑，但不確定</li>
+          <li>就醫與評估</li>
+          <li>持續紀錄與陪伴</li>
+        </ul>
+      </div>
 
-          <MockCaseStory lang={lang} title={dict.story_title} />
+      <Link
+        href="/cases"
+        className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-lg font-medium shadow-md transition"
+      >
+        紀錄，認識自己與自己所關心的人的開始 →
+      </Link>
 
-          <AnonymousStats lang={lang} title={dict.stats_title} />
-
-          <TrendPreview lang={lang} title={dict.trend_title} />
-
-          <CTASection dict={dict} lang={lang} />
-        </div>
-      </main>
-      <Footer />
-    </>
+      <footer className="mt-16 text-sm text-neutral-500">
+        TooYoung © 2025 — 測試版本僅供體驗，非醫療用途。
+      </footer>
+    </main>
   );
 }

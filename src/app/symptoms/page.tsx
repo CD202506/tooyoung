@@ -71,9 +71,11 @@ async function getEvents(caseId: number): Promise<SymptomEvent[]> {
 export default async function SymptomsPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams?: SearchParams;
 }) {
-  const caseId = Number(searchParams?.case_id) || 1;
+  const caseIdInput = searchParams?.case_id;
+  const parsedCaseId = caseIdInput ? Number(caseIdInput) : NaN;
+  const caseId = Number.isFinite(parsedCaseId) ? parsedCaseId : 1;
   const events = await getEvents(caseId);
 
   return (

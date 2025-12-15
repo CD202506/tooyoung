@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = new Set([
-  "/",
-  "/login",
-  "/features",
-  "/about",
-  "/contact",
-  "/legal/privacy",
-  "/legal/terms",
-]);
-
 const MVP_MODE = process.env.NEXT_PUBLIC_MVP_OPEN === "1";
 
 function isAllowed(cookie: string | undefined) {
@@ -29,14 +19,42 @@ export function middleware(req: NextRequest) {
 
   const pathname = req.nextUrl.pathname;
 
-  // 公開頁面放行
-  if (PUBLIC_PATHS.has(pathname)) {
+  const publicPaths = new Set<string>([
+    "/",
+    "/login",
+    "/about",
+    "/features",
+    "/contact",
+  ]);
+  const publicPrefixes = ["/legal", "/timeline", "/symptoms", "/tags", "/share"];
+  const systemPrefixes = ["/cases", "/dashboard", "/summary", "/analytics", "/scales"];
+
+  const isPublicExact = publicPaths.has(pathname);
+  const isPublicPrefix = publicPrefixes.some((p) =>
+    pathname === p || pathname.startsWith(`${p}/`),
+  );
+
+  // 公開/入口層放行
+  if (isPublicExact || isPublicPrefix) {
     return NextResponse.next();
   }
 
   // auth API 放行
   if (pathname.startsWith("/api/auth/login")) {
     return NextResponse.next();
+  }
+
+  const hasDemoKey =
+    Boolean(req.cookies.get("tooyoung_auth")?.value) ||
+    Boolean(req.cookies.get("tooyoung_demo")?.value);
+
+  const isSystemRoute = systemPrefixes.some((p) =>
+    pathname === p || pathname.startsWith(`${p}/`),
+  );
+
+  if (isSystemRoute && !hasDemoKey) {
+    const url = new URL("/login", req.url);
+    return NextResponse.redirect(url);
   }
 
   // 登入驗證

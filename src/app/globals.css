@@ -89,6 +89,19 @@ video {
   right: -50px;
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
 @media (max-width: 768px) {
   .lightbox-nav {
     left: 8px;

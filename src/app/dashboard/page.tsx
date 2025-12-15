@@ -14,6 +14,7 @@ import { ClinicalScaleRecord } from "@/types/clinicalScale";
 type TrendItem = { label: string; count: number };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MVP_OPEN = process.env.NEXT_PUBLIC_MVP_OPEN === "1";
 
 function calcAgeFromYear(birthYear?: number | null) {
   if (!birthYear || Number.isNaN(birthYear)) return "";
@@ -46,6 +47,19 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
+        // MVP 開放模式：跳過所有 auth/session 相關呼叫
+        if (MVP_OPEN) {
+          const casesRes = await fetch("/api/cases");
+          if (casesRes.ok) {
+            const json = (await casesRes.json()) as { cases?: CaseRecord[] };
+            setCases(json.cases ?? []);
+          }
+          setProfile(null);
+          setClinical(null);
+          setLatestScales([]);
+          return;
+        }
+
         const [profileData, casesRes] = await Promise.all([
           getProfileClient(),
           fetch("/api/cases"),

@@ -27,7 +27,7 @@ export function CTASection({ dict, lang }: Props) {
             {dict.cta_start}
           </Link>
           <Link
-            href="/login"
+            href="/cases"
             className="inline-flex items-center rounded-full border border-white/70 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10"
           >
             {dict.cta_learn}

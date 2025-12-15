@@ -28,7 +28,10 @@ function isAllowed(cookie: string | undefined) {
 }
 
 export function middleware(req: NextRequest) {
-  // ✅ MVP 模式：全站放行
+  // TODO(Auth 暫停): temporarily disable gating for public bridge
+  return NextResponse.next();
+
+  // ? MVP 模式：全站放行
   if (MVP_OPEN) {
     return NextResponse.next();
   }

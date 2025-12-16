@@ -70,6 +70,7 @@ function toWebRequest(req: NextApiRequest) {
       method: req.method,
       headers,
       body,
+      duplex: "half", // Node 18+ requires duplex when sending a body (undici)
     } as RequestInit,
   );
 }

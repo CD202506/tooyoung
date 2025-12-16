@@ -60,6 +60,7 @@ async function createDemoEvent() {
     body: form,
     duplex: "half",
   });
+  // Note: duplex is required for Node fetch when streaming FormData.
   if (!res.ok && process.argv.includes("--debug")) {
     const text = await res.text().catch(() => "");
     console.error("[v1-verify] create event failed", res.status, text);

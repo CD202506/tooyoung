@@ -58,6 +58,7 @@ async function createDemoEvent() {
   const res = await fetch(`${BASE}/api/cases/new`, {
     method: "POST",
     body: form,
+    duplex: "half",
   });
   if (!res.ok && process.argv.includes("--debug")) {
     const text = await res.text().catch(() => "");

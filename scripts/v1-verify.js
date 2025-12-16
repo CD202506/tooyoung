@@ -12,7 +12,14 @@
  * This is a demo-only script. TODO(Auth later): replace with real auth tests when auth is restored.
  */
 
-const BASE = process.env.BASE_URL || "http://localhost:3009";
+const BASE =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.BASE_URL ||
+  "http://localhost:3009";
+
+if (process.argv.includes("--debug")) {
+  console.log("[v1-verify] BASE_URL =", BASE);
+}
 
 async function fetchText(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, options);

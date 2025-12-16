@@ -46,6 +46,7 @@ async function createDemoEvent() {
   ).padStart(2, "0")}`;
   const title = `V1 e2e event ${Date.now()}`;
   const form = new FormData();
+  // Align with UI form payload keys used by /api/cases/new
   form.append("date", date);
   form.append("time", time);
   form.append("title", title);
@@ -58,6 +59,10 @@ async function createDemoEvent() {
     method: "POST",
     body: form,
   });
+  if (!res.ok && process.argv.includes("--debug")) {
+    const text = await res.text().catch(() => "");
+    console.error("[v1-verify] create event failed", res.status, text);
+  }
   const json = await res.json().catch(() => ({}));
   assert(res.ok, `Failed to create event: ${res.status}`);
   assert(json?.slug, "Event creation did not return slug");

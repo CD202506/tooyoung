@@ -58,7 +58,7 @@ async function createDemoEvent() {
   const res = await fetch(`${BASE}/api/cases/new`, {
     method: "POST",
     body: form,
-    duplex: "half",
+    duplex: "half", // Node 18+ (undici) requires duplex when sending a body
   });
   if (!res.ok && process.argv.includes("--debug")) {
     const text = await res.text().catch(() => "");

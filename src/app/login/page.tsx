@@ -5,16 +5,17 @@ import { useState } from "react";
 export default function LoginPage() {
   const [account, setAccount] = useState("");
   const [pw, setPw] = useState("");
+  const SUCCESS_REDIRECT = "/dashboard";
 
   const login = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: replace with real auth / API. V1 demo only.
+    // TODO(Auth later): replace with real auth / API. V1 demo only.
     if (account === "0000" && pw === "0000") {
-      window.location.href = "/dashboard";
+      window.location.href = SUCCESS_REDIRECT;
       return;
     }
     // 仍直接導向，保持無驗證的 V1 流程
-    window.location.href = "/dashboard";
+    window.location.href = SUCCESS_REDIRECT;
   };
 
   return (

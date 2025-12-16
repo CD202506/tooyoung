@@ -5,15 +5,16 @@ import { useState } from "react";
 export default function RegisterPage() {
   const [account, setAccount] = useState("");
   const [pw, setPw] = useState("");
+  const SUCCESS_REDIRECT = "/dashboard";
 
   const register = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: replace with real registration + auth. V1 demo only.
+    // TODO(Auth later): replace with real registration + auth. V1 demo only.
     if (account === "0000" && pw === "0000") {
-      window.location.href = "/dashboard";
+      window.location.href = SUCCESS_REDIRECT;
       return;
     }
-    window.location.href = "/dashboard";
+    window.location.href = SUCCESS_REDIRECT;
   };
 
   return (

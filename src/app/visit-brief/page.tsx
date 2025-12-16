@@ -2,22 +2,25 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CaseRecord } from "@/types/case";
-import { ClinicalScaleRecord } from "@/types/clinicalScale";
 import { CaseProfile } from "@/types/profile";
 
 type VisitBriefResponse = {
   ok: boolean;
   profile: CaseProfile;
   scales: {
-    latest_mmse: ClinicalScaleRecord | null;
-    latest_cdr: ClinicalScaleRecord | null;
+    latest_mmse: { total_score: number | null; scale_date?: string | null } | null;
+    latest_cdr: { total_score: number | null; scale_date?: string | null } | null;
   };
   case_stats: {
     top_symptoms: { symptom: string; count: number }[];
     time_buckets: Record<string, number>;
     weekday_buckets: Record<number, number>;
-    key_events: CaseRecord[];
+    key_events: {
+      event_datetime?: string | null;
+      title_zh?: string | null;
+      short_sentence_zh?: string | null;
+      summary_zh?: string | null;
+    }[];
   };
   auto_notes: string[];
 };
@@ -51,6 +54,55 @@ function barWidth(value: number, max: number) {
   return Math.max((value / max) * 100, 5);
 }
 
+type VisitApiResponse = {
+  profile: CaseProfile;
+  latestScale: {
+    mmse_total: number | null;
+    cdr_total: number | null;
+    date: string | null;
+  } | null;
+  recentEvents: Array<{
+    event_datetime?: string | null;
+    title_zh?: string | null;
+    short_sentence_zh?: string | null;
+    summary_zh?: string | null;
+    symptom_categories?: string[];
+  }>;
+  symptomHighlights: {
+    topSymptoms: { symptom: string; count: number }[];
+    worseningSymptoms: string[];
+  };
+};
+
+function bucketTime(date?: string | null) {
+  if (!date) return "未知時段";
+  const dt = new Date(date);
+  if (Number.isNaN(dt.getTime())) return "未知時段";
+  const h = dt.getHours();
+  if (h < 6) return "凌晨";
+  if (h < 12) return "上午";
+  if (h < 18) return "下午";
+  return "晚上";
+}
+
+function buildBuckets(events: VisitApiResponse["recentEvents"]) {
+  const time_buckets: Record<string, number> = { 凌晨: 0, 上午: 0, 下午: 0, 晚上: 0, 未知時段: 0 };
+  const weekday_buckets: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+
+  for (const ev of events) {
+    const bucket = bucketTime(ev.event_datetime);
+    time_buckets[bucket] = (time_buckets[bucket] ?? 0) + 1;
+
+    const dt = ev.event_datetime ? new Date(ev.event_datetime) : null;
+    const weekday = dt && !Number.isNaN(dt.getTime()) ? dt.getDay() : null;
+    if (weekday !== null) {
+      weekday_buckets[weekday] = (weekday_buckets[weekday] ?? 0) + 1;
+    }
+  }
+
+  return { time_buckets, weekday_buckets };
+}
+
 export default function VisitBriefPage() {
   const [data, setData] = useState<VisitBriefResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,9 +110,45 @@ export default function VisitBriefPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/visit-brief", { cache: "no-store" });
-        const json = (await res.json()) as VisitBriefResponse;
-        if (json?.ok) setData(json);
+        const res = await fetch("/api/summary/visit", { cache: "no-store" });
+        const json = (await res.json()) as VisitApiResponse;
+
+        if (!json?.profile) return;
+
+        const events = json.recentEvents ?? [];
+        const { time_buckets, weekday_buckets } = buildBuckets(events);
+
+        const mapped: VisitBriefResponse = {
+          ok: true,
+          profile: json.profile,
+          scales: {
+            latest_mmse: json.latestScale
+              ? {
+                  total_score: json.latestScale.mmse_total,
+                  scale_date: json.latestScale.date,
+                }
+              : null,
+            latest_cdr: json.latestScale
+              ? {
+                  total_score: json.latestScale.cdr_total,
+                  scale_date: json.latestScale.date,
+                }
+              : null,
+          },
+          case_stats: {
+            top_symptoms: json.symptomHighlights?.topSymptoms ?? [],
+            time_buckets,
+            weekday_buckets,
+            key_events: events,
+          },
+          auto_notes: [
+            `最近事件：${events.length} 筆`,
+            json.symptomHighlights?.worseningSymptoms?.length
+              ? `需留意症狀：${json.symptomHighlights.worseningSymptoms.join(", ")}`
+              : "目前未偵測到特別惡化的症狀。",
+          ],
+        };
+        setData(mapped);
       } finally {
         setLoading(false);
       }

@@ -21,13 +21,13 @@ export function CTASection({ dict, lang }: Props) {
         </div>
         <div className="flex flex-wrap gap-3">
           <Link
-            href="/dashboard"
+            href="/profile/setup"
             className="inline-flex items-center rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-800 shadow-lg transition hover:-translate-y-0.5"
           >
             {dict.cta_start}
           </Link>
           <Link
-            href="/cases"
+            href="/profile/setup"
             className="inline-flex items-center rounded-full border border-white/70 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10"
           >
             {dict.cta_learn}

@@ -3,8 +3,8 @@ export type HomeLang = "zh" | "en";
 const HOME_DICT = {
   zh: {
     slogan: "陪伴，是最好的照護",
-    cta_start: "開始使用",
-    cta_learn: "了解更多",
+    cta_start: "前往開始流程",
+    cta_learn: "進入導覽",
     stats_title: "最近常見的照護記錄（示意）",
     story_title: "模擬案例故事",
     trend_title: "30 天趨勢摘要（示意）",
@@ -12,8 +12,8 @@ const HOME_DICT = {
   },
   en: {
     slogan: "Companionship is the best care",
-    cta_start: "Get Started",
-    cta_learn: "Learn More",
+    cta_start: "Start Intake",
+    cta_learn: "Begin Orientation",
     stats_title: "Common Recorded Symptoms (Demo)",
     story_title: "Sample Family Case Story",
     trend_title: "30-Day Trend Overview (Demo)",

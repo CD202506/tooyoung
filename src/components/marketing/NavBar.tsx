@@ -52,7 +52,7 @@ export function NavBar() {
             </Link>
           ))}
           <Link
-            href="/dashboard"
+            href="/profile/setup"
             className="rounded-full border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-100 transition hover:bg-blue-600/20"
           >
             Dashboard
@@ -77,7 +77,7 @@ export function NavBar() {
               </Link>
             ))}
             <Link
-              href="/dashboard"
+              href="/profile/setup"
               onClick={() => setOpen(false)}
               className="rounded-full border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-100 transition hover:bg-blue-600/20"
             >

@@ -26,13 +26,13 @@ export function HeroSection({ lang, dict }: HeroProps) {
           <p className="text-base text-indigo-100/80">{subtitle}</p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Link
-              href="/dashboard"
+              href="/profile/setup"
               className="inline-flex items-center rounded-full bg-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-700/30 transition hover:-translate-y-0.5 hover:bg-indigo-400"
             >
               {dict.cta_start}
             </Link>
             <Link
-              href="/login"
+              href="/profile/setup"
               className="inline-flex items-center rounded-full border border-indigo-300/50 px-5 py-2.5 text-sm font-semibold text-indigo-100 hover:border-indigo-200 hover:bg-white/5"
             >
               {dict.cta_learn}

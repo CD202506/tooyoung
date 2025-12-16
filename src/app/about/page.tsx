@@ -58,17 +58,17 @@ export default function AboutPage() {
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <div className="text-sm text-gray-300">
-                  想為家人開始建立照護記錄？前往個案工作區
+                  想為家人開始建立照護記錄？從這裡進入導覽流程
                 </div>
                 <div className="text-xs text-gray-500">
-                  Ready to start your case record? Go to your dashboard.
+                  Ready to start your case record? Begin with the referral entry.
                 </div>
               </div>
               <Link
-                href="/dashboard"
+                href="/profile/setup"
                 className="inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-100 transition hover:bg-blue-600/20"
               >
-                前往 Dashboard
+                前往開始流程
               </Link>
             </div>
           </section>

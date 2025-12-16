@@ -2,28 +2,27 @@
 
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [account, setAccount] = useState("");
   const [pw, setPw] = useState("");
 
-  const login = async (e: React.FormEvent<HTMLFormElement>) => {
+  const register = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: replace with real auth / API. V1 demo only.
+    // TODO: replace with real registration + auth. V1 demo only.
     if (account === "0000" && pw === "0000") {
       window.location.href = "/dashboard";
       return;
     }
-    // 仍直接導向，保持無驗證的 V1 流程
     window.location.href = "/dashboard";
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
       <form
-        onSubmit={login}
+        onSubmit={register}
         className="flex w-full max-w-xs flex-col gap-4 rounded-xl border border-neutral-700 bg-neutral-900 p-6"
       >
-        <h1 className="text-center text-xl font-bold">登入 Tooyoung</h1>
+        <h1 className="text-center text-xl font-bold">註冊 / Register</h1>
         <input
           type="text"
           className="rounded bg-neutral-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
@@ -39,10 +38,10 @@ export default function LoginPage() {
           onChange={(e) => setPw(e.target.value)}
         />
         <button className="rounded bg-blue-600 px-3 py-2 text-sm font-semibold hover:bg-blue-700">
-          登入
+          繼續
         </button>
         <p className="text-center text-xs text-neutral-400">
-          還沒有帳號？<a className="underline" href="/register">前往註冊</a>
+          已有帳號？<a className="underline" href="/login">直接登入</a>
         </p>
       </form>
     </main>

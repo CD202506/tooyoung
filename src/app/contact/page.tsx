@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { NavBar } from "@/components/marketing/NavBar";
 import { Footer } from "@/components/marketing/Footer";
 
 const TYPES = [
@@ -21,7 +20,6 @@ export default function ContactPage() {
 
   return (
     <>
-      <NavBar />
       <main className="min-h-screen bg-neutral-950 text-gray-100">
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">
           <header className="space-y-2">

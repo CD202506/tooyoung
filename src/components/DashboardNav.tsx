@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function DashboardNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-800 bg-neutral-950/90 backdrop-blur md:sticky md:top-0 md:border-b md:border-t-0">
+    <nav className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 text-sm font-medium text-gray-100 md:justify-start md:gap-4">
         {NAV_ITEMS.map((item) => (
           <Link

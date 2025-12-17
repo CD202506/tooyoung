@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { NavBar } from "@/components/marketing/NavBar";
 import { Footer } from "@/components/marketing/Footer";
 
 export default function GlobalError({
@@ -18,7 +17,6 @@ export default function GlobalError({
 
   return (
     <>
-      <NavBar />
       <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 px-4 text-center text-gray-100">
         <div className="max-w-xl space-y-4 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-8 shadow-lg">
           <div className="text-sm uppercase tracking-wide text-gray-400">

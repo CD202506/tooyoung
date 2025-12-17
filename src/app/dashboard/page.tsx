@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { DashboardNav } from "@/components/DashboardNav";
 import { CaseRecord } from "@/types/case";
 import { CaseProfile } from "@/types/profile";
 import { ClinicalSummary } from "@/lib/clinicalSummary";
@@ -161,8 +160,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-gray-100">
-      <DashboardNav />
-
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-24 pt-4 md:pb-12">
         <header className="pt-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

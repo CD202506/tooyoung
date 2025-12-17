@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3009",
     "build": "next build --no-turbo",
+    "postbuild": "node scripts/ensure-routes-manifest.js",
     "start": "next start",
     "lint": "eslint",
     "migrate": "tsx src/utils/dbInit.ts",

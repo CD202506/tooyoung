@@ -166,6 +166,9 @@ export default function DashboardPage() {
             <div>
               <h1 className="text-3xl font-semibold">個案主頁</h1>
               <p className="text-sm text-gray-400">總覽個案摘要、最新事件與趨勢</p>
+              <p className="text-sm text-gray-500">
+                這裡是你的個人紀錄空間，所有內容可設定為公開或僅自己可見
+              </p>
             </div>
             <button
               type="button"

@@ -17,9 +17,12 @@ type VisitBriefResponse = {
     weekday_buckets: Record<number, number>;
     key_events: {
       event_datetime?: string | null;
+      title?: { zh?: string | null; en?: string | null } | string | null;
       title_zh?: string | null;
+      short_sentence?: { zh?: string | null; en?: string | null } | string | null;
       short_sentence_zh?: string | null;
       summary_zh?: string | null;
+      slug?: string | null;
     }[];
   };
   auto_notes: string[];

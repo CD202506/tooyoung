@@ -2,10 +2,15 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const distDir = process.env.NEXT_DIST_DIR || ".next";
-const manifestPath = path.join(process.cwd(), distDir, "routes-manifest.json");
+const distDirs = Array.from(
+  new Set([process.env.NEXT_DIST_DIR, ".next", ",next"].filter(Boolean)),
+);
 
-if (fs.existsSync(manifestPath)) {
+const manifestPaths = distDirs.map((distDir) =>
+  path.join(process.cwd(), distDir, "routes-manifest.json"),
+);
+
+if (manifestPaths.some((p) => fs.existsSync(p))) {
   process.exit(0);
 }
 
@@ -32,6 +37,8 @@ const manifest = {
   ssg404: true,
 };
 
-fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-console.log(`Generated stub routes manifest at ${manifestPath}`);
+for (const manifestPath of manifestPaths) {
+  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log(`Generated stub routes manifest at ${manifestPath}`);
+}

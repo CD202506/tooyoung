@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AppHeader } from "@/components/AppHeader";
-import { MobileTabBar } from "@/components/MobileTabBar";
+import { GlobalNav } from "@/components/GlobalNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,11 +43,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppHeader />
+        <GlobalNav />
         <main className="pb-[calc(4rem+env(safe-area-inset-bottom))] pt-4 md:pb-0">
           {children}
         </main>
-        <MobileTabBar />
       </body>
     </html>
   );

@@ -2,49 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { publicMenu, V1MenuItem } from "@/config/v1Menu";
 
-export type PublicNavLink = {
-  href: string;
-  labelEn: string;
-  labelZh: string;
-  aliases?: string[];
-};
-
-export const publicNavLinks: PublicNavLink[] = [
-  { href: "/", labelEn: "Home", labelZh: "首頁" },
-  {
-    href: "/stories",
-    labelEn: "Case Stories",
-    labelZh: "真實案例",
-    aliases: ["/cases"],
-  },
-  {
-    href: "/knowledge",
-    labelEn: "Medical Knowledge",
-    labelZh: "醫學新知",
-    aliases: ["/clinical"],
-  },
-  { href: "/about", labelEn: "About", labelZh: "關於 Tooyoung" },
-  {
-    href: "/dashboard",
-    labelEn: "Dashboard",
-    labelZh: "儀表板",
-    aliases: [
-      "/dashboard",
-      "/timeline",
-      "/summary",
-      "/visit-brief",
-      "/profile",
-      "/scales",
-      "/analytics",
-    ],
-  },
-] as const;
-
-export function matchNav(pathname: string | null, link: PublicNavLink) {
-  const targets = [link.href, ...(link.aliases ?? [])];
-  return targets.some((target) =>
-    target === "/" ? pathname === "/" : pathname?.startsWith(target),
+export function matchNav(pathname: string | null, link: V1MenuItem) {
+  const prefixes = link.activePrefixes?.length ? link.activePrefixes : [link.href];
+  return prefixes.some((prefix) =>
+    prefix === "/" ? pathname === "/" : pathname?.startsWith(prefix),
   );
 }
 
@@ -58,15 +21,9 @@ export function AppHeader() {
           <Link href="/" className="text-base font-semibold text-neutral-900">
             TooYoung
           </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-full border border-neutral-300 px-3 py-1 text-xs font-semibold text-neutral-800 transition hover:border-neutral-500 hover:text-neutral-900 md:hidden"
-          >
-            Dashboard / 儀表板
-          </Link>
         </div>
         <nav className="hidden items-center gap-3 text-sm font-medium text-neutral-700 md:flex">
-          {publicNavLinks.map((link) => {
+          {publicMenu.map((link) => {
             const active = matchNav(pathname, link);
             return (
               <Link
@@ -85,7 +42,7 @@ export function AppHeader() {
           })}
         </nav>
         <nav className="flex items-center gap-2 overflow-x-auto text-sm font-medium text-neutral-700 md:hidden">
-          {publicNavLinks.map((link) => {
+          {publicMenu.map((link) => {
             const active = matchNav(pathname, link);
             return (
               <Link

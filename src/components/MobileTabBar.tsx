@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { matchNav, publicNavLinks } from "./AppHeader";
+import { matchNav } from "./AppHeader";
+import { publicMenu } from "@/config/v1Menu";
 
 export function MobileTabBar() {
   const pathname = usePathname();
@@ -10,7 +11,7 @@ export function MobileTabBar() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-neutral-200 bg-white px-2 py-2 md:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-1 text-[11px] font-medium text-neutral-700">
-        {publicNavLinks.map((tab) => {
+        {publicMenu.map((tab) => {
           const active = matchNav(pathname, tab);
           return (
             <Link

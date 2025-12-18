@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { secondLayerMenu } from "@/config/v1Menu";
 
 type NavItem = {
   label: string;
@@ -8,14 +9,12 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "主頁", href: "/dashboard" },
-  { label: "事件列表", href: "/cases" },
-  { label: "時間軸", href: "/timeline" },
-  { label: "事件統計", href: "/summary" },
+  ...secondLayerMenu.map((item) => ({
+    label: item.labelZh,
+    href: item.href,
+  })),
   { label: "臨床趨勢", href: "/analytics/clinical" },
-  { label: "臨床量表", href: "/scales" },
   { label: "回診摘要", href: "/visit-brief" },
-  { label: "編輯個案", href: "/profile" },
 ];
 
 export function DashboardNav() {

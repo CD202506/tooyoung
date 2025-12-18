@@ -30,7 +30,6 @@ function getDateParts(value: string) {
 
 export function TimelineClient({ events }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const { months, groups } = useMemo(() => {
@@ -60,14 +59,13 @@ export function TimelineClient({ events }: Props) {
           const { monthKey } = getDateParts(ev.event_datetime);
           const matchMonth =
             selectedMonth === "all" || monthKey === selectedMonth;
-          const matchCategory = selectedCategory === "all";
-          return matchMonth && matchCategory;
+          return matchMonth;
         });
         const tagFiltered = filterCasesByTags(filtered, selectedTags);
         return [date, tagFiltered] as const;
       })
       .filter(([, evs]) => evs.length > 0);
-  }, [groups, selectedCategory, selectedMonth, selectedTags]);
+  }, [groups, selectedMonth, selectedTags]);
 
   const allTags = useMemo(() => {
     const normalized = events.map(
@@ -99,17 +97,6 @@ export function TimelineClient({ events }: Props) {
           </select>
         </div>
         <div className="flex flex-col text-sm text-neutral-200">
-          <span className="mb-1 text-neutral-400">分類（預留）</span>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-neutral-100"
-          >
-            <option value="all">全部分類</option>
-            <option value="placeholder">（預留）</option>
-          </select>
-        </div>
-        <div className="flex flex-1 flex-col text-sm text-neutral-200">
           <span className="mb-1 text-neutral-400">標籤</span>
           <div className="flex gap-2 overflow-x-auto pb-1">
             {allTags.length === 0 && (
